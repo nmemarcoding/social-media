@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media API Documentation</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #3b82f6;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --background-color: #f8fafc;
+            --card-background: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-radius: 12px;
+            --spacing: 1.5rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--background-color);
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing);
+        }
+
+        h1, h2, h3, h4 {
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(120deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 2rem;
+        }
+
+        .endpoint {
+            background-color: var(--card-background);
+            padding: 2rem;
+            margin: 1.5rem 0;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .endpoint:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        .method {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin-right: 1rem;
+        }
+
+        .post { background-color: var(--success-color); }
+        .get { background-color: var(--primary-color); }
+        .put { background-color: var(--warning-color); }
+        .delete { background-color: var(--danger-color); }
+
+        pre {
+            background-color: #1e1e1e;
+            color: #e4e4e4;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            position: relative;
+        }
+
+        pre::before {
+            content: '';
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            width: 12px;
+            height: 12px;
+            background-color: #ff5f56;
+            border-radius: 50%;
+            box-shadow: 20px 0 0 #ffbd2e, 40px 0 0 #27c93f;
+        }
+
+        .setup-steps {
+            background-color: #f0f9ff;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        ul, ol {
+            padding-left: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        li {
+            margin: 0.5rem 0;
+            color: var(--text-secondary);
+        }
+
+        strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .header-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--primary-color);
+            margin: 1rem 0;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .endpoint {
+                padding: 1.5rem;
+            }
+
+            pre {
+                font-size: 0.8rem;
+                padding: 1rem;
+                margin: 0.5rem 0;
+            }
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background-color 0.2s;
+        }
+
+        .tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .copy-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .response-preview {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8fafc;
+            border-radius: var(--border-radius);
+            border: 1px solid #e2e8f0;
+        }
+
+        .status-code {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            margin-left: 0.5rem;
+        }
+
+        .status-200 { background-color: #dcfce7; color: #166534; }
+        .status-400 { background-color: #fee2e2; color: #991b1b; }
+        .status-401 { background-color: #fef3c7; color: #92400e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Social Media API Documentation</h1>
+
+        <h2>Setup and Installation</h2>
+        <div class="setup-steps">
+            <h3>Prerequisites</h3>
+            <ul>
+                <li>Node.js (v12 or higher)</li>
+                <li>MongoDB</li>
+                <li>npm or yarn</li>
+            </ul>
+
+            <h3>Installation Steps</h3>
+            <ol>
+                <li>Clone the repository</li>
+                <li>Navigate to the api directory</li>
+                <li>Create a .env file with the following variables:
+                    <pre>
+PORT=5000
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret</pre>
+                </li>
+                <li>Install dependencies:
+                    <pre>npm install</pre>
+                </li>
+                <li>Start the server:
+                    <pre>npm start</pre>
+                </li>
+            </ol>
+        </div>
+
+        <h2>API Endpoints</h2>
+
+        <h3>User Routes</h3>
+        <div class="endpoint">
+            <span class="method post">POST</span>
+            <strong>/api/users/register</strong>
+            <p>Register a new user</p>
+            <pre>
+{
+    "username": "string",
+    "email": "string",
+    "password": "string",
+    "firstName": "string",
+    "lastName": "string"
+}</pre>
+            <p>Response:</p>
+            <pre>
+{
+    "id": "string",
+    "username": "string",
+    "email": "string",
+    "firstName": "string",
+    "lastName": "string"
+}</pre>
+        </div>
+
+        <div class="endpoint">
+            <span class="method post">POST</span>
+            <strong>/api/users/login</strong>
+            <p>Login user</p>
+            <pre>
+{
+    "email": "string",
+    "password": "string"
+}</pre>
+            <p>Response:</p>
+            <pre>
+{
+    "id": "string",
+    "username": "string",
+    "email": "string",
+    "firstName": "string",
+    "lastName": "string"
+}</pre>
+        </div>
+
+        <h3>Post Routes</h3>
+        <div class="endpoint">
+            <span class="method post">POST</span>
+            <strong>/api/posts</strong>
+            <p>Create a new post (Requires Authentication)</p>
+            <pre>
+{
+    "content": "string",
+    "media": "string"
+}</pre>
+        </div>
+
+        <div class="endpoint">
+            <span class="method get">GET</span>
+            <strong>/api/posts/timeline/all</strong>
+            <p>Get all posts from user (Requires Authentication)</p>
+        </div>
+
+        <div class="endpoint">
+            <span class="method get">GET</span>
+            <strong>/api/posts/:id</strong>
+            <p>Get specific post (Requires Authentication)</p>
+        </div>
+
+        <div class="endpoint">
+            <span class="method put">PUT</span>
+            <strong>/api/posts/:id</strong>
+            <p>Update a post (Requires Authentication)</p>
+            <pre>
+{
+    "content": "string",
+    "media": "string"
+}</pre>
+        </div>
+
+        <div class="endpoint">
+            <span class="method delete">DELETE</span>
+            <strong>/api/posts/:id</strong>
+            <p>Delete a post (Requires Authentication)</p>
+        </div>
+
+        <h2>Authentication</h2>
+        <div class="endpoint">
+            <p>All protected routes require an 'x-auth-token' header with a valid JWT token.</p>
+            <pre>
+headers: {
+    'x-auth-token': 'your_jwt_token'
+}</pre>
+        </div>
+
+        <h2>Testing</h2>
+        <div class="endpoint">
+            <p>You can test the API using tools like Postman or curl. Example curl command:</p>
+            <pre>
+# Register a new user
+curl -X POST http://localhost:5000/api/users/register \
+    -H "Content-Type: application/json" \
+    -d '{"username":"test","email":"test@test.com","password":"password","firstName":"Test","lastName":"User"}'
+
+# Login
+curl -X POST http://localhost:5000/api/users/login \
+    -H "Content-Type: application/json" \
+    -d '{"email":"test@test.com","password":"password"}'
+
+# Create a post (replace TOKEN with actual token)
+curl -X POST http://localhost:5000/api/posts \
+    -H "Content-Type: application/json" \
+    -H "x-auth-token: TOKEN" \
+    -d '{"content":"Hello World!"}'</pre>
+        </div>
+
+        <h2>Testing with Postman</h2>
+        <div class="endpoint">
+            <h3>What is Postman?</h3>
+            <p>Postman is a popular API testing tool that makes it easy to test, develop and document APIs. You can download it from <a href="https://www.postman.com/downloads/" target="_blank">postman.com</a>.</p>
+
+            <h3>Setting Up Postman</h3>
+            <ol>
+                <li>Download and install Postman</li>
+                <li>Create a new Collection (Click "+" next to Collections)</li>
+                <li>Name it "Social Media API"</li>
+            </ol>
+
+            <h3>Testing Authentication Flow</h3>
+            <h4>1. Register a New User</h4>
+            <ul>
+                <li>Method: POST</li>
+                <li>URL: http://localhost:5000/api/users/register</li>
+                <li>Headers: 
+                    <pre>Content-Type: application/json</pre>
+                </li>
+                <li>Body (raw JSON):
+                    <pre>
+{
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "password123",
+    "firstName": "Test",
+    "lastName": "User"
+}</pre>
+                </li>
+                <li>Send the request and save the x-auth-token from the response headers</li>
+            </ul>
+
+            <h4>2. Login</h4>
+            <ul>
+                <li>Method: POST</li>
+                <li>URL: http://localhost:5000/api/users/login</li>
+                <li>Headers: 
+                    <pre>Content-Type: application/json</pre>
+                </li>
+                <li>Body (raw JSON):
+                    <pre>
+{
+    "email": "test@example.com",
+    "password": "password123"
+}</pre>
+                </li>
+                <li>Save the x-auth-token from the response headers</li>
+            </ul>
+
+            <h3>Testing Protected Routes</h3>
+            <p>For all protected routes, you need to include the authentication token in the headers:</p>
+            <pre>Authorization: Bearer YOUR_TOKEN_HERE</pre>
+
+            <h4>1. Create a Post</h4>
+            <ul>
+                <li>Method: POST</li>
+                <li>URL: http://localhost:5000/api/posts</li>
+                <li>Headers:
+                    <pre>
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE</pre>
+                </li>
+                <li>Body (raw JSON):
+                    <pre>
+{
+    "content": "My first post!",
+    "media": "http://example.com/image.jpg"
+}</pre>
+                </li>
+            </ul>
+
+            <h4>2. Get Timeline Posts</h4>
+            <ul>
+                <li>Method: GET</li>
+                <li>URL: http://localhost:5000/api/posts/timeline/all</li>
+                <li>Headers:
+                    <pre>Authorization: Bearer YOUR_TOKEN_HERE</pre>
+                </li>
+            </ul>
+
+            <h4>3. Update a Post</h4>
+            <ul>
+                <li>Method: PUT</li>
+                <li>URL: http://localhost:5000/api/posts/:id</li>
+                <li>Headers:
+                    <pre>
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE</pre>
+                </li>
+                <li>Body (raw JSON):
+                    <pre>
+{
+    "content": "Updated post content",
+    "media": "http://example.com/new-image.jpg"
+}</pre>
+                </li>
+            </ul>
+
+            <h4>4. Delete a Post</h4>
+            <ul>
+                <li>Method: DELETE</li>
+                <li>URL: http://localhost:5000/api/posts/:id</li>
+                <li>Headers:
+                    <pre>Authorization: Bearer YOUR_TOKEN_HERE</pre>
+                </li>
+            </ul>
+
+            <h3>Tips for Postman Usage</h3>
+            <ul>
+                <li>Create a Collection Variable for the base URL (http://localhost:5000)</li>
+                <li>After login, save the token as a Collection Variable to use it automatically in other requests</li>
+                <li>Use the "Tests" tab to automatically save the token:
+                    <pre>
+pm.test("Save token", function () {
+    var token = pm.response.headers.get('x-auth-token');
+    pm.collectionVariables.set('token', token);
+});</pre>
+                </li>
+                <li>Create a Collection-level Authorization using the token variable:
+                    <pre>Type: Bearer Token
+Token: {{token}}</pre>
+                </li>
+            </ul>
+
+            <h3>Common Issues and Solutions</h3>
+            <ul>
+                <li>401 Unauthorized: Check if your token is valid and properly formatted in the Authorization header</li>
+                <li>400 Bad Request: Verify your request body matches the expected format</li>
+                <li>404 Not Found: Ensure you're using the correct post ID in the URL</li>
+                <li>500 Server Error: Check your server logs for detailed error information</li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        // Add copy functionality to code blocks
+        document.querySelectorAll('pre').forEach(block => {
+            const button = document.createElement('button');
+            button.className = 'copy-button';
+            button.textContent = 'Copy';
+            
+            button.addEventListener('click', async () => {
+                const code = block.textContent;
+                await navigator.clipboard.writeText(code);
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                }, 2000);
+            });
+            
+            block.style.paddingTop = '3rem';
+            block.appendChild(button);
+        });
+    </script>
+</body>
+</html>
