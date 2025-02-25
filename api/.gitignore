@@ -41,3 +41,5 @@ temp/
 # Debug
 .npm
 .eslintcache
+
+.DS_Store
