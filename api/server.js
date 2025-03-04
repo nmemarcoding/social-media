@@ -10,7 +10,15 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+// Updated CORS configuration
+app.use(cors({
+    origin: 'http://localhost:3000', // Your frontend URL
+    credentials: true,               // Allow credentials (cookies)
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
+    exposedHeaders: ['x-auth-token'] // Expose this header to the frontend
+}));
+
 app.use(bodyParser.json());
 app.use('/api/users', userRoutes);
 app.use('/api/posts', require('./routes/post'));
