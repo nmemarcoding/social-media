@@ -22,7 +22,7 @@ router.post('/register', async (req, res) => {
         // Create new user
         const user = new User({
             username,
-            email,
+            email: email.toLowerCase(),
             passwordHash: password, // Will be hashed by pre-save hook
             firstName,
             lastName
