@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { publicRequest, setAuthToken, removeAuthToken } from '../../hooks/requestMethods';
+import { publicRequest, setAuthToken, removeAuthToken, setUserInfo, removeUserInfo } from '../../hooks/requestMethods';
 import './signUp.css';
 
 export default function SignUp() {
@@ -58,12 +58,16 @@ export default function SignUp() {
                           res.data.accessToken;
 
             if (token) {
-                // Store the token but still navigate to login page
+                // Store the token and user data but still navigate to login page
                 // as this is registration flow
                 setAuthToken(token);
+                if (res.data && res.data.id) {
+                    setUserInfo(res.data);
+                }
                 navigate('/login');
             } else if (res.data && res.data.id) {
                 // If we have user data but no token, still proceed
+                setUserInfo(res.data);
                 navigate('/login');
             } else {
                 setError('Registration successful but no token received');
@@ -74,6 +78,7 @@ export default function SignUp() {
             console.error('Registration error:', err);
             setError(err.response?.data?.message || 'Something went wrong');
             removeAuthToken(); // Clear any existing token on error
+            removeUserInfo(); // Clear any existing user info on error
         } finally {
             setIsLoading(false);
         }

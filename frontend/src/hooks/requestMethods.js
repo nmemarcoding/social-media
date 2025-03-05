@@ -11,6 +11,30 @@ export const setAuthToken = (token) => {
     Cookies.set(TOKEN_COOKIE_NAME, token, { expires: 7 }); // Cookie expires in 7 days
 };
 
+// Function to store user information in localStorage
+export const setUserInfo = (userData) => {
+    if (!userData) return;
+    console.log('Storing user data:', userData);
+    localStorage.setItem('user', JSON.stringify({
+        id: userData.id,
+        username: userData.username,
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName
+    }));
+};
+
+// Function to get user information from localStorage
+export const getUserInfo = () => {
+    const userInfo = localStorage.getItem('user');
+    return userInfo ? JSON.parse(userInfo) : null;
+};
+
+// Function to remove user information from localStorage
+export const removeUserInfo = () => {
+    localStorage.removeItem('user');
+};
+
 // Function to get auth token from cookie
 export const getAuthToken = () => {
     const token = Cookies.get(TOKEN_COOKIE_NAME);

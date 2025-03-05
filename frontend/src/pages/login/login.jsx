@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { publicRequest, setAuthToken, removeAuthToken } from '../../hooks/requestMethods';
+import { publicRequest, setAuthToken, removeAuthToken, setUserInfo, removeUserInfo } from '../../hooks/requestMethods';
 import './login.css';
 
 export default function Login() {
@@ -32,6 +32,10 @@ export default function Login() {
 
             if (token) {
                 setAuthToken(token);
+                // Store user information in localStorage
+                if (res.data && res.data.id) {
+                    setUserInfo(res.data);
+                }
                 navigate('/');
             } else {
                 // If no token in header, extract from response data instead
@@ -39,6 +43,7 @@ export default function Login() {
                     // We have user data but no token, let's try to continue
                     // This is a fallback mechanism
                     setAuthToken(`fallback-token-${res.data.id}`);
+                    setUserInfo(res.data);
                     navigate('/');
                 } else {
                     setError('Authentication failed - No token received');
@@ -48,6 +53,7 @@ export default function Login() {
             console.error('Login error:', err);
             setError(err.response?.data?.message || 'Something went wrong');
             removeAuthToken(); // Clear any existing token on error
+            removeUserInfo(); // Clear any existing user info on error
         } finally {
             setIsLoading(false);
         }
