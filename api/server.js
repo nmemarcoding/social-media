@@ -19,6 +19,8 @@ app.use("/api/relationships", require("./routes/relationship"))
 
 
 
+app.use('/api/messages', require('./routes/message'));
+
 // MongoDB Connection
 mongoose
     .connect(process.env.MONGODB_URI)
