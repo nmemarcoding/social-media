@@ -12,11 +12,11 @@ const PORT = process.env.PORT || 5000;
 
 // Updated CORS configuration
 app.use(cors({
-    origin: 'http://localhost:3000', // Your frontend URL
-    credentials: true,               // Allow credentials (cookies)
+    origin: ['http://192.168.1.17:3000', 'http://localhost:3000'],
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
-    exposedHeaders: ['x-auth-token'] // Expose this header to the frontend
+    exposedHeaders: ['x-auth-token']
 }));
 
 app.use(bodyParser.json());
