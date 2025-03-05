@@ -15,6 +15,9 @@ app.use(bodyParser.json());
 app.use('/api/users', userRoutes);
 app.use('/api/posts', require('./routes/post'));
 app.use('/api/comments', require('./routes/comment'));
+app.use("/api/relationships", require("./routes/relationship"))
+
+
 
 app.use('/api/messages', require('./routes/message'));
 
