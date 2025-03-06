@@ -5,22 +5,40 @@ const userSchema = new mongoose.Schema({
     username: { 
         type: String, 
         unique: true, 
-        required: true 
+        required: true,
+        default: '' 
     },
     email: { 
         type: String, 
         unique: true, 
-        required: true 
+        required: true,
+        default: '' 
     },
     passwordHash: { 
         type: String, 
-        required: true 
+        required: true,
+        default: ''
     },
-    firstName: String,
-    lastName: String,
-    bio: String,
-    profilePicture: String,
-    coverPhoto: String,
+    firstName: {
+        type: String,
+        default: ''
+    },
+    lastName: {
+        type: String,
+        default: ''
+    },
+    bio: {
+        type: String,
+        default: ''
+    },
+    profilePicture: {
+        type: String,
+        default: 'https://placehold.co/150'
+    },
+    coverPhoto: {
+        type: String,
+        default: 'https://placehold.co/1080x360'
+    },
     isPrivate: { 
         type: Boolean, 
         default: false 
@@ -35,7 +53,10 @@ const userSchema = new mongoose.Schema({
 
 // Add lastLogin field
 userSchema.add({
-    lastLogin: Date
+    lastLogin: {
+        type: Date,
+        default: null
+    }
 });
 
 // Method to hash password before saving
