@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { getAuthToken } from './hooks/requestMethods';
 import Login from './pages/login/login';
 import SignUp from './pages/signUp/signUp';
+import Profile from './pages/profile/profile'; // Import the Profile component
 import './App.css';
 
 // Loading component
@@ -60,6 +61,24 @@ function App() {
                             </div>
                         </ProtectedRoute>
                     } 
+                />
+                
+                {/* Profile routes */}
+                <Route
+                    path="/profile"
+                    element={
+                        <ProtectedRoute>
+                            <Profile />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/profile/:username"
+                    element={
+                        <ProtectedRoute>
+                            <Profile />
+                        </ProtectedRoute>
+                    }
                 />
                 
                 <Route 
