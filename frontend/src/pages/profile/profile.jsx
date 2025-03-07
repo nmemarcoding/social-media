@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { publicRequest } from '../../hooks/requestMethods';
 import './profile.css';
 
 // Import components
@@ -9,6 +10,8 @@ import PostsGrid from './components/PostsGrid';
 
 export default function Profile() {
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
     
     // Get profile data from local storage or use default values
     const profileUser = JSON.parse(localStorage.getItem('user')) || {
@@ -21,33 +24,26 @@ export default function Profile() {
         friendsCount: 248
     };
     
-    // Static posts data - converted to state to allow adding new posts
-    const [posts, setPosts] = useState([
-        {
-            _id: '1',
-            content: 'Beautiful sunset today!',
-            media: 'https://placehold.co/400x400/orange/white?text=Sunset',
-            likesCount: 42
-        },
-        {
-            _id: '2',
-            content: 'My new coding setup',
-            media: 'https://placehold.co/400x400/blue/white?text=Setup',
-            likesCount: 28
-        },
-        {
-            _id: '3',
-            content: 'Weekend hiking trip',
-            media: 'https://placehold.co/400x400/green/white?text=Hiking',
-            likesCount: 35
-        },
-        {
-            _id: '4',
-            content: 'Learning new tech',
-            media: 'https://placehold.co/400x400/purple/white?text=Tech',
-            likesCount: 19
-        }
-    ]);
+    // Posts state
+    const [posts, setPosts] = useState([]);
+    
+    // Fetch posts on component mount
+    useEffect(() => {
+        const fetchPosts = async () => {
+            setIsLoading(true);
+            try {
+                const res = await publicRequest().get('/posts/timeline/all');
+                setPosts(res.data);
+            } catch (err) {
+                console.error("Failed to fetch posts:", err);
+                setError("Failed to load posts. Please try again later.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        
+        fetchPosts();
+    }, []);
     
     // Static hardcoded relationship status
     const relationshipStatus = { status: 'pending' };
@@ -55,25 +51,28 @@ export default function Profile() {
     // Static flag for own profile
     const isOwnProfile = true;
     
-    // Handle creating a new post
-    const handleCreatePost = (content, media, callback) => {
-        // Simulate API delay
-        setTimeout(() => {
-            // Create a new post object
-            const newPost = {
-                _id: `new-${Date.now()}`, // Generate temporary ID
-                content: content,
-                media: media || '',
-                likesCount: 0,
-                createdAt: new Date().toISOString()
-            };
+    // Handle creating a new post - now uses the API
+    const handleCreatePost = async (content, media, callback) => {
+        setError(null);
+        
+        try {
+            // Make API request to create post
+            const response = await publicRequest().post('/posts', {
+                content,
+                media: media || ''
+            });
             
-            // Add the new post to the posts array
-            setPosts([newPost, ...posts]);
+            // Add the new post from API response to the posts array
+            setPosts([response.data, ...posts]);
             
             // Call the callback to reset form
             callback();
-        }, 1000);
+        } catch (err) {
+            console.error('Error creating post:', err);
+            setError(err.response?.data?.error || 'Failed to create post. Please try again.');
+            // Still call callback to reset form state
+            callback();
+        }
     };
     
     // Simplified event handlers
@@ -113,6 +112,9 @@ export default function Profile() {
                     </div>
                 </div>
                 
+                {/* Show error if it exists */}
+                {error && <div className="error-message">{error}</div>}
+                
                 {/* New Post Creation Section */}
                 {isOwnProfile && (
                     <CreatePostForm 
@@ -121,11 +123,16 @@ export default function Profile() {
                     />
                 )}
                 
-                <PostsGrid 
-                    posts={posts} 
-                    profileUser={profileUser} 
-                    isOwnProfile={isOwnProfile} 
-                />
+                {/* Show loading state or posts */}
+                {isLoading ? (
+                    <div className="loading-message">Loading posts...</div>
+                ) : (
+                    <PostsGrid 
+                        posts={posts} 
+                        profileUser={profileUser} 
+                        isOwnProfile={isOwnProfile} 
+                    />
+                )}
             </div>
         </div>
     );

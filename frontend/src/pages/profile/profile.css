@@ -310,6 +310,159 @@
     cursor: not-allowed;
 }
 
+/* Post Modal Styles */
+.postModalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.postModal {
+    width: 90%;
+    max-width: 1000px;
+    max-height: 90vh;
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-lg);
+}
+
+.postModalCloseButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: background-color 0.2s;
+}
+
+.postModalCloseButton:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.postModalContent {
+    display: flex;
+    height: 100%;
+    max-height: 80vh;
+}
+
+.postModalImageContainer {
+    flex: 2;
+    background-color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-height: 80vh;
+}
+
+.postModalImage {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    max-height: 80vh;
+}
+
+.postModalDetails {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-primary);
+    border-left: 1px solid var(--divider-color);
+    min-width: 300px;
+}
+
+.postModalHeader {
+    display: flex;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--divider-color);
+    margin-bottom: 16px;
+}
+
+.postModalUserImage {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 12px;
+    object-fit: cover;
+}
+
+.postModalUsername {
+    font-weight: 600;
+}
+
+.postModalText {
+    flex-grow: 1;
+    font-size: var(--font-size-md);
+    line-height: 1.5;
+    margin-bottom: 16px;
+    overflow-y: auto;
+    word-break: break-word;
+}
+
+.postModalStats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--divider-color);
+}
+
+.postModalLikes {
+    font-weight: 600;
+}
+
+.postModalDate {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+/* Animation for modal */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Responsive design for modal */
+@media (max-width: 768px) {
+    .postModalContent {
+        flex-direction: column;
+        max-height: 90vh;
+    }
+    
+    .postModalImageContainer {
+        max-height: 50vh;
+    }
+    
+    .postModalDetails {
+        min-width: unset;
+        max-height: 40vh;
+        overflow-y: auto;
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .profileHeader {
