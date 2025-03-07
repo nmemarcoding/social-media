@@ -44,8 +44,10 @@ router.post('/register', async (req, res) => {
                 username: user.username,
                 email: user.email,
                 firstName: user.firstName,
-                lastName: user.lastName
-            
+                lastName: user.lastName,
+                profilePicture: user.profilePicture,
+                coverPhoto: user.coverPhoto,
+                bio: user.bio
         });
 
     } catch (error) {
@@ -90,6 +92,9 @@ router.post('/login', async (req, res) => {
                 email: user.email,
                 firstName: user.firstName,
                 lastName: user.lastName,
+                profilePicture: user.profilePicture,
+                coverPhoto: user.coverPhoto,
+                bio: user.bio
                 
          
         });

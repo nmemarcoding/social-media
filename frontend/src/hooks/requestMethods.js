@@ -20,7 +20,10 @@ export const setUserInfo = (userData) => {
         username: userData.username,
         email: userData.email,
         firstName: userData.firstName,
-        lastName: userData.lastName
+        lastName: userData.lastName,
+        profilePicture: userData.profilePicture,
+        coverPhoto: userData.coverPhoto,
+        bio: userData.bio
     }));
 };
 
