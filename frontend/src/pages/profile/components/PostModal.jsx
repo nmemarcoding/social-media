@@ -83,19 +83,20 @@ const PostModal = ({ post, profileUser, onClose }) => {
 
     return (
         <div className="postModalOverlay" onClick={handleOutsideClick}>
-            <div className="postModal">
-                <button className="postModalCloseButton" onClick={onClose}>×</button>
-                
-                <div className="postModalContent">
-                    <div className="postModalImageContainer">
-                        <img 
-                            src={post.media || "https://placehold.co/600?text=No+Image"} 
+            <div className="postModalContainer">
+                <button className="postModalCloseBtn" onClick={onClose}>×</button>
+                <div className="postModalRow">
+                    {/* Image column */}
+                    <div className="postModalCol postModalImageCol">
+                        <img
+                            src={post?.media || "https://placehold.co/600?text=No+Image"}
                             alt={`Post by ${profileUser.username}`}
-                            className="postModalImage" 
+                            className="postModalImage"
                         />
                     </div>
-                    
-                    <div className="postModalDetails">
+
+                    {/* Content column */}
+                    <div className="postModalCol postModalContentCol">
                         <div className="postModalHeader">
                             <img 
                                 src={profileUser.profilePicture || "https://placehold.co/40"} 
@@ -108,6 +109,34 @@ const PostModal = ({ post, profileUser, onClose }) => {
                         <div className="postModalText">{post.content}</div>
                         
                         <div className="postModalComments">
+                            {/* Mobile comment form - displayed at top on mobile */}
+                            <form onSubmit={handleAddComment} className="postModalCommentForm mobileCommentForm">
+                                <input
+                                    type="text"
+                                    placeholder="Add a comment..."
+                                    value={commentText}
+                                    onChange={(e) => setCommentText(e.target.value)}
+                                    className="postModalCommentInput"
+                                />
+                                <button 
+                                    type="submit" 
+                                    className="postModalCommentButton"
+                                    disabled={!commentText.trim()}
+                                >
+                                    Post
+                                </button>
+                            </form>
+                            
+                            {/* Mobile stats section - displayed below comment form on mobile */}
+                            <div className="postModalStats mobileStats">
+                                <div className="postModalLikes">❤️ {post.likesCount || 0} likes</div>
+                                <div className="postModalDate">
+                                    {post.createdAt ? 
+                                        formatRelativeTime(post.createdAt) : 
+                                        'Recently'}
+                                </div>
+                            </div>
+                            
                             {isLoading ? (
                                 <div className="postModalCommentsLoading">Loading comments...</div>
                             ) : (
@@ -135,7 +164,8 @@ const PostModal = ({ post, profileUser, onClose }) => {
                                 </>
                             )}
                             
-                            <form onSubmit={handleAddComment} className="postModalCommentForm">
+                            {/* Desktop comment form - hidden on mobile */}
+                            <form onSubmit={handleAddComment} className="postModalCommentForm desktopCommentForm">
                                 <input
                                     type="text"
                                     placeholder="Add a comment..."
@@ -153,7 +183,8 @@ const PostModal = ({ post, profileUser, onClose }) => {
                             </form>
                         </div>
                         
-                        <div className="postModalStats">
+                        {/* Desktop stats section - hidden on mobile */}
+                        <div className="postModalStats desktopStats">
                             <div className="postModalLikes">❤️ {post.likesCount || 0} likes</div>
                             <div className="postModalDate">
                                 {post.createdAt ? 
