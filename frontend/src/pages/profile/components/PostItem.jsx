@@ -1,8 +1,8 @@
 import React from 'react';
 
-const PostItem = ({ post, profileUsername }) => {
+const PostItem = ({ post, profileUsername, onClick }) => {
     return (
-        <div key={post._id} className="postItem">
+        <div key={post._id} className="postItem" onClick={onClick}>
             <img 
                 src={post.media || "https://placehold.co/400?text=No+Image"} 
                 alt={`Post by ${profileUsername}`}

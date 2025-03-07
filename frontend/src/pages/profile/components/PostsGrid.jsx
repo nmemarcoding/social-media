@@ -1,7 +1,7 @@
 import React from 'react';
 import PostItem from './PostItem';
 
-const PostsGrid = ({ posts, profileUser, isOwnProfile }) => {
+const PostsGrid = ({ posts, profileUser, isOwnProfile, onPostClick }) => {
     return (
         <div className="postsGrid">
             {posts.length > 0 ? (
@@ -10,6 +10,7 @@ const PostsGrid = ({ posts, profileUser, isOwnProfile }) => {
                         key={post._id}
                         post={post}
                         profileUsername={profileUser.username}
+                        onClick={() => onPostClick(post)}
                     />
                 ))
             ) : (

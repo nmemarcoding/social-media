@@ -7,11 +7,13 @@ import './profile.css';
 import ProfileHeader from './components/ProfileHeader';
 import CreatePostForm from './components/CreatePostForm';
 import PostsGrid from './components/PostsGrid';
+import PostModal from './components/PostModal';
 
 export default function Profile() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [selectedPost, setSelectedPost] = useState(null);
     
     // Get profile data from local storage or use default values
     const profileUser = JSON.parse(localStorage.getItem('user')) || {
@@ -75,6 +77,16 @@ export default function Profile() {
         }
     };
     
+    // Handler for opening post modal
+    const handlePostClick = (post) => {
+        setSelectedPost(post);
+    };
+    
+    // Handler for closing post modal
+    const handleCloseModal = () => {
+        setSelectedPost(null);
+    };
+    
     // Simplified event handlers
     const handleFollow = () => {
         console.log('Follow action triggered');
@@ -130,7 +142,17 @@ export default function Profile() {
                     <PostsGrid 
                         posts={posts} 
                         profileUser={profileUser} 
-                        isOwnProfile={isOwnProfile} 
+                        isOwnProfile={isOwnProfile}
+                        onPostClick={handlePostClick}
+                    />
+                )}
+                
+                {/* Post Modal */}
+                {selectedPost && (
+                    <PostModal 
+                        post={selectedPost} 
+                        profileUser={profileUser}
+                        onClose={handleCloseModal}
                     />
                 )}
             </div>

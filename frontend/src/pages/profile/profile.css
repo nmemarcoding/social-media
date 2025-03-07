@@ -323,10 +323,12 @@
     justify-content: center;
     z-index: 1000;
     animation: fadeIn 0.3s ease;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 .postModal {
-    width: 90%;
+    width: 100%;
     max-width: 1000px;
     max-height: 90vh;
     background-color: var(--bg-primary);
@@ -346,9 +348,9 @@
     color: white;
     border: none;
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    font-size: 20px;
+    width: 40px; /* Larger touch target */
+    height: 40px; /* Larger touch target */
+    font-size: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -391,6 +393,7 @@
     background-color: var(--bg-primary);
     border-left: 1px solid var(--divider-color);
     min-width: 300px;
+    overflow-y: auto;
 }
 
 .postModalHeader {
@@ -414,12 +417,87 @@
 }
 
 .postModalText {
-    flex-grow: 1;
     font-size: var(--font-size-md);
     line-height: 1.5;
     margin-bottom: 16px;
-    overflow-y: auto;
     word-break: break-word;
+}
+
+/* Fixed Post Modal Comments Section Styles */
+.postModalComments {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 65px; /* Space for comment form */
+    overflow-y: hidden;
+    flex: 1;
+}
+
+.postModalCommentsHeader {
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+}
+
+.postModalCommentsList {
+    overflow-y: auto;
+    max-height: 180px;
+    margin-bottom: var(--spacing-md);
+    padding-right: 5px;
+}
+
+.postModalComment {
+    margin-bottom: var(--spacing-md);
+    font-size: var(--font-size-sm);
+    line-height: 1.4;
+}
+
+.postModalCommentUser {
+    font-weight: 600;
+    margin-right: var(--spacing-xs);
+    display: inline;
+}
+
+.postModalCommentContent {
+    display: inline;
+}
+
+.postModalNoComments {
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-bottom: var(--spacing-md);
+    text-align: center;
+    padding: 10px;
+}
+
+.postModalCommentForm {
+    display: flex;
+    gap: var(--spacing-sm);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-primary);
+    padding: 15px 20px;
+    border-top: 1px solid var(--divider-color);
+}
+
+.postModalCommentInput {
+    flex: 1;
+    padding: 12px var(--spacing-md); /* Larger touch target */
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--divider-color);
+    font-size: var(--font-size-sm);
+}
+
+.postModalCommentButton {
+    padding: 12px var(--spacing-md); /* Larger touch target */
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: var(--border-radius-md);
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    min-width: 60px; /* Minimum width for better touch */
 }
 
 .postModalStats {
@@ -428,21 +506,168 @@
     align-items: center;
     padding-top: 12px;
     border-top: 1px solid var(--divider-color);
+    margin-bottom: 15px;
 }
 
-.postModalLikes {
-    font-weight: 600;
-}
-
-.postModalDate {
+.postModalCommentsLoading {
     color: var(--text-secondary);
-    font-size: var(--font-size-sm);
+    font-style: italic;
+    text-align: center;
+    margin: var(--spacing-md) 0;
+    padding: 20px 0;
 }
 
-/* Animation for modal */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+/* Enhanced Responsiveness for Different Screen Sizes */
+@media (max-width: 968px) {
+    .postModal {
+        width: 95%;
+        max-height: 85vh;
+    }
+}
+
+/* Fixed Modal Responsiveness */
+@media (max-width: 768px) {
+    .postModalContent {
+        flex-direction: column;
+        max-height: none;
+        height: auto;
+    }
+    
+    .postModalImageContainer {
+        max-height: 50vh;
+        min-height: 200px;
+    }
+    
+    .postModalDetails {
+        min-width: unset;
+        height: 45vh;
+        border-left: none;
+        border-top: 1px solid var(--divider-color);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .postModalCommentsList {
+        max-height: 100px;
+    }
+}
+
+@media (max-width: 576px) {
+    .postModalOverlay {
+        padding: 0;
+    }
+    
+    .postModal {
+        width: 100%;
+        height: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .postModalImageContainer {
+        height: 35vh;
+        max-height: 35vh;
+    }
+    
+    .postModalDetails {
+        height: 65vh;
+        padding: 16px 16px 70px 16px; /* Increased bottom padding for comment form */
+    }
+    
+    .postModalHeader {
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .postModalCloseButton {
+        top: 10px;
+        right: 10px;
+        width: 36px;
+        height: 36px;
+        font-size: 20px;
+    }
+    
+    .postModalCommentForm {
+        padding-bottom: 5px;
+    }
+    
+    .postModalCommentInput {
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .postModalText {
+        font-size: 14px;
+        margin-bottom: 10px;
+        max-height: 80px;
+        overflow-y: auto;
+    }
+    
+    .postModalComments {
+        margin-bottom: 0;
+    }
+    
+    .postModalCommentsList {
+        max-height: calc(65vh - 220px); /* Dynamically calculate max height */
+    }
+    
+    .postModalCommentForm {
+        padding: 10px 16px;
+    }
+    
+    .postModalCommentInput {
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding: 10px 12px;
+    }
+    
+    .postModalCommentButton {
+        padding: 10px 12px;
+    }
+    
+    .postModalStats {
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-height: 600px) and (orientation: portrait) {
+    .postModalImageContainer {
+        height: 30vh;
+    }
+    
+    .postModalDetails {
+        height: 70vh;
+    }
+    
+    .postModalCommentsList {
+        max-height: calc(70vh - 220px);
+    }
+}
+
+@media (max-height: 480px) and (orientation: landscape) {
+    .postModalContent {
+        flex-direction: row;
+        height: 100vh;
+    }
+    
+    .postModalImageContainer {
+        flex: 1;
+        height: 100%;
+        max-height: 100vh;
+    }
+    
+    .postModalDetails {
+        flex: 1;
+        height: 100%;
+        border-left: 1px solid var(--divider-color);
+        border-top: none;
+        padding-bottom: 70px;
+    }
+    
+    .postModalCommentsList {
+        max-height: calc(100vh - 220px);
+    }
 }
 
 /* Responsive design for modal */
