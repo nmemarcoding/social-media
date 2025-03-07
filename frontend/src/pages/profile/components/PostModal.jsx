@@ -34,14 +34,15 @@ const PostModal = ({ post, profileUser, onClose }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [commentText, setCommentText] = useState('');
 
-    // Fetch comments when modal opens
+    // Fetch comments when modal opens - UPDATED ROUTE
     useEffect(() => {
         const fetchComments = async () => {
             if (!post || !post._id) return;
             
             setIsLoading(true);
             try {
-                const res = await publicRequest().get(`/comments/post/${post._id}`);
+                // Updated to use post route instead of comments route
+                const res = await publicRequest().get(`/posts/post/${post._id}`);
                 setComments(res.data);
             } catch (err) {
                 console.error("Failed to fetch comments:", err);
@@ -53,13 +54,14 @@ const PostModal = ({ post, profileUser, onClose }) => {
         fetchComments();
     }, [post]);
 
-    // Handle adding a new comment
+    // Handle adding a new comment - UPDATED ROUTE
     const handleAddComment = async (e) => {
         e.preventDefault();
         if (!commentText.trim() || !post._id) return;
 
         try {
-            const res = await publicRequest().post(`/comments/${post._id}`, {
+            // Updated to use post route instead of comments route
+            const res = await publicRequest().post(`/posts/${post._id}`, {
                 content: commentText
             });
             
