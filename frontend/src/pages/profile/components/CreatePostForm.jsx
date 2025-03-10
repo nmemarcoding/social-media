@@ -35,20 +35,26 @@ const CreatePostForm = ({ profileUser, onSubmit }) => {
     };
 
     return (
-        <div className="createPostSection">
-            <div className="createPostHeader">
-                <h3>Create New Post</h3>
+        <div className="bg-white rounded-xl border border-gray-200 shadow-md p-5">
+            <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">Create New Post</h3>
             </div>
-            <form onSubmit={handleSubmit} className="createPostForm">
-                <div className="createPostUser">
-                    <img 
-                        src={profileUser.profilePicture || "https://placehold.co/40"} 
-                        alt={profileUser.username} 
-                        className="createPostUserImage"
-                    />
-                    <span className="createPostUsername">{profileUser.username}</span>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div className="flex items-center gap-3">
+                    {profileUser.profilePicture ? (
+                        <img 
+                            src={profileUser.profilePicture} 
+                            alt={profileUser.username} 
+                            className="w-10 h-10 rounded-full object-cover ring-1 ring-gray-300"
+                        />
+                    ) : (
+                        <div className="w-10 h-10 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center">
+                            {profileUser.firstName?.charAt(0) || ''}
+                        </div>
+                    )}
+                    <span className="font-semibold text-gray-700">{profileUser.username}</span>
                 </div>
-                <div className="createPostContent">
+                <div className="flex flex-col gap-4">
                     <textarea 
                         ref={textareaRef}
                         placeholder="What's on your mind?"
@@ -58,20 +64,24 @@ const CreatePostForm = ({ profileUser, onSubmit }) => {
                             adjustTextareaHeight();
                         }}
                         required
-                        className="createPostTextarea"
+                        className="min-h-20 p-4 rounded-lg border border-gray-300 focus:border-blue-400 text-base resize-none overflow-hidden transition-all focus:outline-none focus:ring-2 focus:ring-blue-300 shadow-sm"
                     />
                     <input 
                         type="text" 
                         placeholder="Image URL (optional)"
                         value={media}
                         onChange={(e) => setMedia(e.target.value)}
-                        className="createPostMediaInput"
+                        className="p-4 rounded-lg border border-gray-300 focus:border-blue-400 text-base transition-all focus:outline-none focus:ring-2 focus:ring-blue-300 shadow-sm"
                     />
                 </div>
-                <div className="createPostActions">
+                <div className="flex justify-end">
                     <button 
                         type="submit" 
-                        className="createPostButton" 
+                        className={`px-6 py-2 text-white border-none rounded-lg font-semibold cursor-pointer transition-all duration-200 ${
+                            isSubmitting || !content.trim() 
+                                ? 'bg-gray-400 cursor-not-allowed' 
+                                : 'bg-blue-500 hover:bg-blue-600 shadow-sm'
+                        }`}
                         disabled={isSubmitting || !content.trim()}
                     >
                         {isSubmitting ? 'Posting...' : 'Post'}

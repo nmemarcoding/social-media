@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { publicRequest } from '../../hooks/requestMethods';
-import './profile.css';
 
 // Import components
 import ProfileHeader from './components/ProfileHeader';
@@ -102,8 +101,8 @@ export default function Profile() {
     };
 
     return (
-        <div className="profile">
-            <div className="profileContainer">
+        <div className="min-h-screen flex flex-col bg-bg-secondary py-6 px-4 md:px-8">
+            <div className="max-w-2xl mx-auto w-full">
                 <ProfileHeader 
                     profileUser={profileUser}
                     isOwnProfile={isOwnProfile}
@@ -114,38 +113,43 @@ export default function Profile() {
                     handleMessage={handleMessage}
                 />
                 
-                <div className="profileTabs">
-                    <div className="profileTab active">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24">
+                <div className="flex justify-center mt-4 mb-8 pt-4 border-t border-divider-color">
+                    <div className="flex items-center gap-2 px-1 py-3 mx-4 sm:mx-7 text-sm font-medium text-text-primary border-t-2 border-text-primary uppercase tracking-wider">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24">
                             <path fill="currentColor" d="M3 3v18h18V3H3zm16 16H5V5h14v14z"/>
                             <path fill="currentColor" d="M5 5h14v14H5z"/>
                         </svg>
-                        Posts
+                        <span className="text-sm font-medium">Posts</span>
                     </div>
                 </div>
                 
                 {/* Show error if it exists */}
-                {error && <div className="error-message">{error}</div>}
+                {error && <div className="text-danger-color text-center mb-6 text-sm bg-[rgba(255,51,51,0.1)] py-3 px-4 rounded-lg animate-shake shadow-sm">{error}</div>}
                 
-                {/* New Post Creation Section */}
-                {isOwnProfile && (
-                    <CreatePostForm 
-                        profileUser={profileUser} 
-                        onSubmit={handleCreatePost}
-                    />
-                )}
-                
-                {/* Show loading state or posts */}
-                {isLoading ? (
-                    <div className="loading-message">Loading posts...</div>
-                ) : (
-                    <PostsGrid 
-                        posts={posts} 
-                        profileUser={profileUser} 
-                        isOwnProfile={isOwnProfile}
-                        onPostClick={handlePostClick}
-                    />
-                )}
+                <div className="space-y-8">
+                    {/* New Post Creation Section */}
+                    {isOwnProfile && (
+                        <CreatePostForm 
+                            profileUser={profileUser} 
+                            onSubmit={handleCreatePost}
+                        />
+                    )}
+                    
+                    {/* Show loading state or posts */}
+                    {isLoading ? (
+                        <div className="flex justify-center items-center py-8 rounded-xl border border-gray-200 shadow-md bg-white">
+                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-color"></div>
+                            <span className="ml-3 text-text-secondary text-base">Loading posts...</span>
+                        </div>
+                    ) : (
+                        <PostsGrid 
+                            posts={posts} 
+                            profileUser={profileUser} 
+                            isOwnProfile={isOwnProfile}
+                            onPostClick={handlePostClick}
+                        />
+                    )}
+                </div>
                 
                 {/* Post Modal */}
                 {selectedPost && (
