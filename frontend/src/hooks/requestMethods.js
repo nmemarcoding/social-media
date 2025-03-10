@@ -7,14 +7,14 @@ const TOKEN_COOKIE_NAME = 'auth_token';
 // Function to set auth token in cookie
 export const setAuthToken = (token) => {
     if (!token) return;
-    console.log('Setting auth token:', token);
+
     Cookies.set(TOKEN_COOKIE_NAME, token, { expires: 7 }); // Cookie expires in 7 days
 };
 
 // Function to store user information in localStorage
 export const setUserInfo = (userData) => {
     if (!userData) return;
-    console.log('Storing user data:', userData);
+  
     localStorage.setItem('user', JSON.stringify({
         id: userData.id,
         username: userData.username,

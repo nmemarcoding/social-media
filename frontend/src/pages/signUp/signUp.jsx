@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { publicRequest, setAuthToken, removeAuthToken, setUserInfo, removeUserInfo } from '../../hooks/requestMethods';
-import './signUp.css';
 
 export default function SignUp() {
     const [formData, setFormData] = useState({
@@ -85,21 +84,21 @@ export default function SignUp() {
     };
 
     return (
-        <div className="signup">
-            <div className="signupWrapper">
-                <div className="signupLogo">SocialApp</div>
-                <div className="signupDesc">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#e0eafc] to-[#cfdef3] p-4">
+            <div className="w-full max-w-[450px] p-8 rounded-2xl bg-white shadow-xl animate-fadeIn">
+                <div className="text-[2rem] font-extrabold text-primary-color mb-4 text-center">SocialApp</div>
+                <div className="text-base text-center mb-8 text-text-secondary">
                     Create an account to connect with friends.
                 </div>
 
-                {error && <div className="error-message">{error}</div>}
+                {error && <div className="text-danger-color text-center mb-4 text-sm bg-[rgba(255,51,51,0.1)] py-2 px-4 rounded-lg animate-shake">{error}</div>}
 
-                <form className="signupForm" onSubmit={handleSubmit}>
-                    <div className="nameInputs">
+                <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+                    <div className="flex gap-4 md:flex-row flex-col">
                         <input
                             type="text"
                             placeholder="First Name"
-                            className="signupInput"
+                            className="py-3.5 px-4 rounded-lg border border-divider-color text-base outline-none transition-all focus:border-primary-color focus:shadow-[0_0_0_2px_rgba(24,119,242,0.2)]"
                             name="firstName"
                             value={formData.firstName}
                             onChange={handleChange}
@@ -109,7 +108,7 @@ export default function SignUp() {
                         <input
                             type="text"
                             placeholder="Last Name"
-                            className="signupInput"
+                            className="py-3.5 px-4 rounded-lg border border-divider-color text-base outline-none transition-all focus:border-primary-color focus:shadow-[0_0_0_2px_rgba(24,119,242,0.2)]"
                             name="lastName"
                             value={formData.lastName}
                             onChange={handleChange}
@@ -120,7 +119,7 @@ export default function SignUp() {
                     <input
                         type="text"
                         placeholder="Username"
-                        className="signupInput"
+                        className="py-3.5 px-4 rounded-lg border border-divider-color text-base outline-none transition-all focus:border-primary-color focus:shadow-[0_0_0_2px_rgba(24,119,242,0.2)]"
                         name="username"
                         value={formData.username}
                         onChange={handleChange}
@@ -130,7 +129,7 @@ export default function SignUp() {
                     <input
                         type="email"
                         placeholder="Email"
-                        className="signupInput"
+                        className="py-3.5 px-4 rounded-lg border border-divider-color text-base outline-none transition-all focus:border-primary-color focus:shadow-[0_0_0_2px_rgba(24,119,242,0.2)]"
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
@@ -140,7 +139,7 @@ export default function SignUp() {
                     <input
                         type="password"
                         placeholder="Password"
-                        className="signupInput"
+                        className="py-3.5 px-4 rounded-lg border border-divider-color text-base outline-none transition-all focus:border-primary-color focus:shadow-[0_0_0_2px_rgba(24,119,242,0.2)]"
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
@@ -151,7 +150,7 @@ export default function SignUp() {
                     <input
                         type="password"
                         placeholder="Confirm Password"
-                        className="signupInput"
+                        className="py-3.5 px-4 rounded-lg border border-divider-color text-base outline-none transition-all focus:border-primary-color focus:shadow-[0_0_0_2px_rgba(24,119,242,0.2)]"
                         name="confirmPassword"
                         value={formData.confirmPassword}
                         onChange={handleChange}
@@ -160,14 +159,14 @@ export default function SignUp() {
                         aria-label="Confirm Password"
                     />
                     <button
-                        className="signupButton"
+                        className="py-3 px-4 border-none rounded-lg bg-secondary-color text-white text-lg font-semibold cursor-pointer transition-colors mt-4 hover:bg-secondary-hover disabled:bg-opacity-40 disabled:cursor-not-allowed"
                         type="submit"
                         disabled={isLoading || Object.values(formData).some(value => !value)}
                         aria-busy={isLoading}
                     >
                         {isLoading ? (
                             <>
-                                <span className="button-spinner"></span>
+                                <span className="inline-block w-[18px] h-[18px] border-3 border-[rgba(255,255,255,0.3)] rounded-full border-t-white animate-spin mr-2 align-middle"></span>
                                 <span>Creating Account...</span>
                             </>
                         ) : (
@@ -176,7 +175,8 @@ export default function SignUp() {
                     </button>
                 </form>
 
-                <div className="loginLink" onClick={() => navigate('/login')}>
+                <div className="text-center text-primary-color cursor-pointer mt-6 mb-0 text-base hover:underline" 
+                     onClick={() => navigate('/login')}>
                     Already have an account? Log In
                 </div>
             </div>
