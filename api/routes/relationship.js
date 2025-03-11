@@ -66,6 +66,31 @@ router.put('/accept/:userId', auth, async (req, res) => {
     }
 });
 
+// Remove friend (unfriend)
+router.delete('/friend/:userId', auth, async (req, res) => {
+    try {
+        const relationship = await Relationship.findOneAndDelete({
+            $or: [
+                { requester: req.user.id, recipient: req.params.userId },
+                { requester: req.params.userId, recipient: req.user.id }
+            ],
+            status: 'accepted'
+        });
+
+        if (!relationship) {
+            return res.status(404).json({ error: "Friendship not found" });
+        }
+
+        // Update friends count for both users (decrement)
+        await User.findByIdAndUpdate(req.user.id, { $inc: { friendsCount: -1 } });
+        await User.findByIdAndUpdate(req.params.userId, { $inc: { friendsCount: -1 } });
+
+        res.json({ message: "Friend removed successfully" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Reject/Cancel friend request
 router.delete('/request/:userId', auth, async (req, res) => {
     try {
