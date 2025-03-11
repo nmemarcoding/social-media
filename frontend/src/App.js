@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import { getAuthToken } from './hooks/requestMethods';
 import Login from './pages/login/login';
 import SignUp from './pages/signUp/signUp';
-import Profile from './pages/profile/profile'; // Import the Profile component
+import Profile from './pages/profile/profile'; 
+import Navbar from './pages/compomemts/Navbar'; // Import Navbar component
 import './App.css';
 
 // Loading component
@@ -14,7 +15,7 @@ const LoadingScreen = () => (
   </div>
 );
 
-// Protected Route component with added check
+// Protected Route component with Navbar integration
 const ProtectedRoute = ({ children }) => {
     const [isChecking, setIsChecking] = useState(true);
     const [isAuth, setIsAuth] = useState(false);
@@ -26,14 +27,23 @@ const ProtectedRoute = ({ children }) => {
     }, []);
 
     if (isChecking) {
-        return <LoadingScreen />; // Improved loading state
+        return <LoadingScreen />;
     }
 
     if (!isAuth) {
         return <Navigate to="/login" />;
     }
 
-    return children;
+    // Return the children wrapped with Navbar for authenticated routes
+    return (
+        <>
+            <Navbar />
+            {/* Add top padding to account for fixed navbar height */}
+            <div className="pt-14 md:pt-16">
+                {children}
+            </div>
+        </>
+    );
 };
 
 // Auth Route component (for login/register)
