@@ -5,9 +5,9 @@ import { removeAuthToken, removeUserInfo, getUserInfo } from '../../hooks/reques
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  // Removed unused isMobile state
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(''); // New state for search query
+  const [searchQuery, setSearchQuery] = useState(''); 
   const navigate = useNavigate();
   const location = useLocation();
   const profileMenuRef = useRef(null);
@@ -21,7 +21,7 @@ const Navbar = () => {
   // Handle window resize for responsive design
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      // Removed isMobile state update
       if (window.innerWidth >= 768) {
         setIsSearchOpen(false);
       }
