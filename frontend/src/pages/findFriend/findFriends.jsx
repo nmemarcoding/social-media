@@ -9,7 +9,6 @@ const FindFriends = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [relationships, setRelationships] = useState({});
-  const [pendingRequests, setPendingRequests] = useState([]);
   const [actionInProgress, setActionInProgress] = useState(null);
   
   const currentUser = getUserInfo() || {};
