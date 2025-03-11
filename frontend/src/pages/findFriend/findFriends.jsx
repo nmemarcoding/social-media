@@ -13,106 +13,25 @@ const FindFriends = () => {
   const [actionInProgress, setActionInProgress] = useState(null);
   
   const currentUser = getUserInfo() || {};
-  
+
   // Fetch all users and relationships on component mount
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Mock data for static display - would be replaced with actual API calls
-        const mockUsers = [
-          {
-            id: '1',
-            username: 'janedoe',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            bio: 'UX Designer. Coffee enthusiast. Dog lover.',
-            profilePicture: 'https://placehold.co/150?text=Jane',
-            friendsCount: 125
-          },
-          {
-            id: '2',
-            username: 'mikesmith',
-            firstName: 'Mike',
-            lastName: 'Smith',
-            bio: 'Photographer and travel blogger. Always exploring.',
-            profilePicture: 'https://placehold.co/150?text=Mike',
-            friendsCount: 87
-          },
-          {
-            id: '3',
-            username: 'sarah_j',
-            firstName: 'Sarah',
-            lastName: 'Johnson',
-            bio: 'Marketing specialist. Book lover and aspiring author.',
-            profilePicture: 'https://placehold.co/150?text=Sarah',
-            friendsCount: 213
-          },
-          {
-            id: '4',
-            username: 'alex_tech',
-            firstName: 'Alex',
-            lastName: 'Brown',
-            bio: 'Software engineer. Open source contributor.',
-            profilePicture: 'https://placehold.co/150?text=Alex',
-            friendsCount: 156
-          },
-          {
-            id: '5',
-            username: 'lisa_design',
-            firstName: 'Lisa',
-            lastName: 'Chen',
-            bio: 'Graphic designer. Art enthusiast.',
-            profilePicture: 'https://placehold.co/150?text=Lisa',
-            friendsCount: 92
-          },
-          {
-            id: '6',
-            username: 'david_m',
-            firstName: 'David',
-            lastName: 'Miller',
-            bio: 'Fitness coach. Helping people achieve their goals.',
-            profilePicture: 'https://placehold.co/150?text=David',
-            friendsCount: 178
-          },
-          {
-            id: '7',
-            username: 'emma_w',
-            firstName: 'Emma',
-            lastName: 'Wilson',
-            bio: 'Chef and food blogger. Sharing delicious recipes.',
-            profilePicture: 'https://placehold.co/150?text=Emma',
-            friendsCount: 142
-          },
-          {
-            id: '8',
-            username: 'kevin_p',
-            firstName: 'Kevin',
-            lastName: 'Park',
-            bio: 'Music producer. Always creating new beats.',
-            profilePicture: 'https://placehold.co/150?text=Kevin',
-            friendsCount: 105
+        const response = await publicRequest().get('/relationships/users'); 
+        const fetchedUsers = response.data.users.map(u => ({ ...u, id: u._id }));
+        setUsers(fetchedUsers);
+        setFilteredUsers(fetchedUsers);
+
+        // Build relationships map from user data
+        const initialRelationships = {};
+        fetchedUsers.forEach(u => {
+          if (u.relationshipStatus) {
+            initialRelationships[u.id] = u.relationshipStatus;
           }
-        ];
-        
-        // Mock relationship data
-        const mockRelationships = {
-          '2': 'accepted', // Friends with Mike
-          '3': 'pending_sent', // Request sent to Sarah
-          '5': 'pending_received', // Request received from Lisa
-          '7': 'blocked' // Blocked Emma
-        };
-        
-        setUsers(mockUsers);
-        setFilteredUsers(mockUsers);
-        setRelationships(mockRelationships);
-        
-        // In a real implementation, we would fetch users and relationships:
-        // const userResponse = await publicRequest().get('/users');
-        // const relationshipResponse = await publicRequest().get('/relationship/status');
-        // setUsers(userResponse.data);
-        // setFilteredUsers(userResponse.data);
-        // setRelationships(relationshipResponse.data);
+        });
+        setRelationships(initialRelationships);
       } catch (err) {
         console.error("Failed to fetch users:", err);
         setError("Failed to load users. Please try again later.");
@@ -120,7 +39,7 @@ const FindFriends = () => {
         setLoading(false);
       }
     };
-    
+
     fetchData();
   }, []);
   
@@ -130,36 +49,33 @@ const FindFriends = () => {
       setFilteredUsers(users);
       return;
     }
-    
+
     const query = searchQuery.toLowerCase();
     const filtered = users.filter(user => 
       user.username.toLowerCase().includes(query) || 
       `${user.firstName} ${user.lastName}`.toLowerCase().includes(query) ||
       user.bio.toLowerCase().includes(query)
     );
-    
+
     setFilteredUsers(filtered);
   }, [searchQuery, users]);
   
   // Handle friend request actions
   const handleFriendAction = async (userId, action) => {
     setActionInProgress(userId);
-    
+
     try {
-      // In a real implementation, these would be actual API calls
-      // For now, we'll simulate by updating the local state
-      
       switch(action) {
         case 'send_request':
-          // await publicRequest().post(`/relationship/request/${userId}`);
+          await publicRequest().post(`/relationships/request/${userId}`);
           setRelationships(prev => ({ ...prev, [userId]: 'pending_sent' }));
           break;
         case 'accept_request':
-          // await publicRequest().put(`/relationship/accept/${userId}`);
+          await publicRequest().put(`/relationships/accept/${userId}`);
           setRelationships(prev => ({ ...prev, [userId]: 'accepted' }));
           break;
         case 'cancel_request':
-          // await publicRequest().delete(`/relationship/request/${userId}`);
+          await publicRequest().delete(`/relationships/request/${userId}`);
           setRelationships(prev => {
             const newState = { ...prev };
             delete newState[userId];
@@ -167,7 +83,7 @@ const FindFriends = () => {
           });
           break;
         case 'remove_friend':
-          // await publicRequest().delete(`/relationship/friend/${userId}`);
+          await publicRequest().delete(`/relationships/friend/${userId}`);
           setRelationships(prev => {
             const newState = { ...prev };
             delete newState[userId];
@@ -194,7 +110,7 @@ const FindFriends = () => {
     
     const relationshipStatus = relationships[user.id];
     const isInProgress = actionInProgress === user.id;
-    
+
     switch(relationshipStatus) {
       case 'accepted':
         return (
