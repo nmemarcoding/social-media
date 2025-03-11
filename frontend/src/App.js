@@ -4,6 +4,7 @@ import { getAuthToken } from './hooks/requestMethods';
 import Login from './pages/login/login';
 import SignUp from './pages/signUp/signUp';
 import Profile from './pages/profile/profile'; 
+import FindFriends from './pages/findFriend/findFriends'; // Fixed case sensitivity issue
 import Navbar from './pages/compomemts/Navbar'; // Import Navbar component
 import './App.css';
 
@@ -87,6 +88,16 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <Profile />
+                        </ProtectedRoute>
+                    }
+                />
+                
+                {/* Find Friends route */}
+                <Route
+                    path="/find-friends"
+                    element={
+                        <ProtectedRoute>
+                            <FindFriends />
                         </ProtectedRoute>
                     }
                 />
