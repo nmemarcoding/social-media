@@ -131,6 +131,71 @@ router.get('/friends', auth, async (req, res) => {
     }
 });
 
+// Get all users with relationship status
+router.get('/users', auth, async (req, res) => {
+    try {
+        // Get query parameter for search
+        const search = req.query.search || '';
+        
+        // Build search query
+        const searchQuery = search ? {
+            $or: [
+                { username: { $regex: search, $options: 'i' } },
+                { firstName: { $regex: search, $options: 'i' } },
+                { lastName: { $regex: search, $options: 'i' } }
+            ]
+        } : {};
+        
+        // Exclude current user
+        const excludeUsers = { _id: { $ne: req.user.id } };
+        
+        // Combine search and exclude filters
+        const query = { ...searchQuery, ...excludeUsers };
+        
+        // Get all users
+        const users = await User.find(query)
+            .select('username firstName lastName profilePicture bio friendsCount');
+        
+        // Get all relationships for current user
+        const relationships = await Relationship.find({
+            $or: [
+                { requester: req.user.id },
+                { recipient: req.user.id }
+            ]
+        });
+        
+        // Create a map of userId to relationship
+        const relationshipMap = {};
+        relationships.forEach(rel => {
+            const otherUserId = rel.requester.toString() === req.user.id.toString() 
+                ? rel.recipient.toString() 
+                : rel.requester.toString();
+            
+            let relationshipStatus = rel.status;
+            
+            // Add direction for pending relationships
+            if (relationshipStatus === 'pending') {
+                relationshipStatus = rel.requester.toString() === req.user.id.toString()
+                    ? 'pending_sent'
+                    : 'pending_received';
+            }
+            
+            relationshipMap[otherUserId] = relationshipStatus;
+        });
+        
+        // Add relationship status to each user
+        const usersWithRelationship = users.map(user => {
+            const userObj = user.toObject();
+            userObj.relationshipStatus = relationshipMap[user._id.toString()] || null;
+            return userObj;
+        });
+        
+        res.json({ users: usersWithRelationship });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Get pending friend requests
 router.get('/pending', auth, async (req, res) => {
     try {
