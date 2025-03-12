@@ -4,8 +4,9 @@ import { getAuthToken } from './hooks/requestMethods';
 import Login from './pages/login/login';
 import SignUp from './pages/signUp/signUp';
 import Profile from './pages/profile/profile'; 
-import FindFriends from './pages/findFriend/findFriends'; // Fixed case sensitivity issue
-import Navbar from './pages/compomemts/Navbar'; // Import Navbar component
+import FindFriends from './pages/findFriend/findFriends';
+import HomePage from './pages/homePage/homePage'; // Import HomePage component
+import Navbar from './pages/compomemts/Navbar';
 import './App.css';
 
 // Loading component
@@ -66,10 +67,7 @@ function App() {
                     path="/" 
                     element={
                         <ProtectedRoute>
-                            <div className="min-h-screen flex flex-col items-center justify-center bg-bg-secondary py-8 px-4">
-                                <h1 className="text-3xl font-bold text-primary-color mb-4">Welcome to SocialApp</h1>
-                                <p className="text-lg text-text-secondary">Your home feed is coming soon!</p>
-                            </div>
+                            <HomePage />
                         </ProtectedRoute>
                     } 
                 />
