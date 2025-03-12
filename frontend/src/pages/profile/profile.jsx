@@ -33,7 +33,7 @@ export default function Profile() {
         const fetchPosts = async () => {
             setIsLoading(true);
             try {
-                const res = await publicRequest().get('/posts/timeline/all');
+                const res = await publicRequest().get('/posts/user/posts');
                 setPosts(res.data);
             } catch (err) {
                 console.error("Failed to fetch posts:", err);

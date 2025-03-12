@@ -90,6 +90,8 @@ router.get('/:id', auth, async (req, res) => {
     }
 });
 
+
+
 // Get timeline posts
 router.get('/timeline/all', auth, async (req, res) => {
     try {
@@ -114,9 +116,22 @@ router.get('/timeline/all', auth, async (req, res) => {
         const timelinePosts = await Post.find({ userId: { $in: userAndFriendIds } })
             .sort({ createdAt: -1 })
             .populate('userId', 'username profilePicture');
-            
+
 
         res.json(timelinePosts);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Get all posts for authenticated user
+router.get('/user/posts', auth, async (req, res) => {
+    try {
+        const userPosts = await Post.find({ userId: req.user.id })
+            .sort({ createdAt: -1 })
+            .populate('userId', 'username profilePicture');
+        
+        res.json(userPosts);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
