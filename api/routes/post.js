@@ -2,6 +2,7 @@ const router = require('express').Router();
 const Post = require('../models/Post');
 const User = require('../models/User');
 const Comment = require('../models/Comment');
+const Relationship = require('../models/Relationship');
 const auth = require('../middleware/auth');
 
 // Create post
@@ -70,7 +71,6 @@ router.delete('/:id', auth, async (req, res) => {
     }
 });
 
-
 // Get a post
 router.get('/:id', auth, async (req, res) => {
     try {
@@ -93,11 +93,28 @@ router.get('/:id', auth, async (req, res) => {
 // Get timeline posts
 router.get('/timeline/all', auth, async (req, res) => {
     try {
-        // Only fetch posts from the authenticated user
-        const userPosts = await Post.find({ userId: req.user.id })
-            .sort({ createdAt: -1 }); // Sort by newest first
-        
-        res.json(userPosts);
+        // Find all accepted relationships involving the current user
+        const relationships = await Relationship.find({
+            status: 'accepted',
+            $or: [
+                { requester: req.user.id },
+                { recipient: req.user.id }
+            ]
+        });
+
+        // Extract friend IDs based on the relationship schema
+        const friendIds = relationships.map(rel =>
+            rel.requester.toString() === req.user.id ? rel.recipient : rel.requester
+        );
+
+        // Combine current user's ID with friend IDs
+        const userAndFriendIds = [req.user.id, ...friendIds];
+
+        // Fetch posts from the user and their friends
+        const timelinePosts = await Post.find({ userId: { $in: userAndFriendIds } })
+            .sort({ createdAt: -1 });
+
+        res.json(timelinePosts);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
