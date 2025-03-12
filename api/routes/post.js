@@ -112,7 +112,9 @@ router.get('/timeline/all', auth, async (req, res) => {
 
         // Fetch posts from the user and their friends
         const timelinePosts = await Post.find({ userId: { $in: userAndFriendIds } })
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .populate('userId', 'username profilePicture');
+            
 
         res.json(timelinePosts);
     } catch (err) {
