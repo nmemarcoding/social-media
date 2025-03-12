@@ -63,7 +63,10 @@ router.delete('/:id', auth, async (req, res) => {
             return res.status(403).json({ error: "You can only delete your own posts", });
         }
         
-
+        // Delete all comments associated with this post
+        await Comment.deleteMany({ postId: req.params.id });
+        
+        // Delete the post
         await post.deleteOne();
         res.json({ message: "Post deleted successfully" });
     } catch (err) {
