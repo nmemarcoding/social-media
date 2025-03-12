@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { publicRequest } from '../../../hooks/requestMethods';
 
 const PostCard = ({ post, currentUser, onLikePost }) => {
+    const user = post.userId || {};
+
     const [comment, setComment] = useState('');
     const [isCommenting, setIsCommenting] = useState(false);
     const [showComments, setShowComments] = useState(false);
@@ -84,17 +86,17 @@ const PostCard = ({ post, currentUser, onLikePost }) => {
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
             {/* Post Header */}
             <div className="px-4 pt-4 flex items-center">
-                <Link to={`/profile/${post.username}`} className="flex-shrink-0">
+                <Link to={`/profile/${user.username}`} className="flex-shrink-0">
                     <img 
-                        src={post.profilePicture || fallbackUserImage} 
-                        alt={post.username || "User"} 
+                        src={user.profilePicture || fallbackUserImage} 
+                        alt={`${user.username || 'User'}`} 
                         className="w-10 h-10 rounded-full object-cover border border-gray-200" 
-                        onError={(e) => {e.target.src = fallbackUserImage}}
+                        onError={(e) => { e.target.src = fallbackUserImage }}
                     />
                 </Link>
                 <div className="ml-3 flex-1">
-                    <Link to={`/profile/${post.username}`} className="font-semibold text-text-primary hover:underline">
-                        {post.username || "User"}
+                    <Link to={`/profile/${user.username}`} className="font-semibold text-text-primary hover:underline">
+                        {user.firstName || user.lastName ? `${user.firstName} ${user.lastName}` : user.username || 'User'}
                     </Link>
                     <div className="text-xs text-text-secondary">
                         {formatDate(post.createdAt)}

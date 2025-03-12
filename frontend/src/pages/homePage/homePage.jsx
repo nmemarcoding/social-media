@@ -17,20 +17,35 @@ export default function HomePage() {
 
     // Fetch posts on component mount
     useEffect(() => {
-        const fetchPosts = async () => {
+        const fetchAllData = async () => {
             setIsLoading(true);
             try {
-                const res = await publicRequest().get('/posts/timeline/all');
-                setPosts(res.data);
+                // Get timeline posts (populated with user info)
+                const timelineRes = await publicRequest().get('/posts/timeline/all');
+                const postsData = timelineRes.data;
+
+                // Optionally, fetch extra details (e.g., comments) for each post
+                const postsWithDetails = await Promise.all(
+                    postsData.map(async (post) => {
+                        const comRes = await publicRequest().get(`/comments/post/${post._id}`);
+                        return {
+                            ...post,
+                            comments: comRes.data,
+                            commentsCount: comRes.data.length
+                        };
+                    })
+                );
+
+                setPosts(postsWithDetails);
             } catch (err) {
-                console.error("Failed to fetch posts:", err);
-                setError("Failed to load posts. Please try again later.");
+                console.error('Failed to fetch posts:', err);
+                setError('Failed to load posts. Please try again later.');
             } finally {
                 setIsLoading(false);
             }
         };
-        
-        fetchPosts();
+
+        fetchAllData();
     }, []);
     
     // Handle creating a new post
