@@ -76,6 +76,26 @@ export default function Profile() {
         }
     };
     
+    // Handle deleting a post
+    const handleDeletePost = async (postId) => {
+        if (!postId) return;
+        
+        try {
+            // Make API request to delete post
+            await publicRequest().delete(`/posts/${postId}`);
+            
+            // Remove the post from local state
+            setPosts(posts.filter(post => post._id !== postId));
+            
+            // Close the modal
+            setSelectedPost(null);
+            
+        } catch (err) {
+            console.error('Error deleting post:', err);
+            setError(err.response?.data?.error || 'Failed to delete post. Please try again.');
+        }
+    };
+    
     // Handler for opening post modal
     const handlePostClick = (post) => {
         setSelectedPost(post);
@@ -157,6 +177,7 @@ export default function Profile() {
                         post={selectedPost} 
                         profileUser={profileUser}
                         onClose={handleCloseModal}
+                        onDelete={handleDeletePost}
                     />
                 )}
             </div>
