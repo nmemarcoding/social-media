@@ -34,6 +34,49 @@ router.post('/:receiverId', auth, async (req, res) => {
     }
 });
 
+// Get full message history between authenticated user and specific user
+router.get('/history/:userId', auth, async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { markSeen = false } = req.query;
+        
+        // Verify if user exists
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        
+        // Find all messages between the two users
+        const messages = await Message.find({
+            $or: [
+                { senderId: req.user.id, receiverId: userId },
+                { senderId: userId, receiverId: req.user.id }
+            ]
+        })
+        .sort({ createdAt: -1 }) // Newest first
+        .populate('sender', 'username firstName lastName profilePicture')
+        .populate('receiver', 'username firstName lastName profilePicture');
+        
+        // Mark messages as seen if requested and if they are sent to the current user
+        if (markSeen === 'true' || markSeen === true) {
+            await Message.updateMany(
+                {
+                    senderId: userId,
+                    receiverId: req.user.id,
+                    seen: false
+                },
+                {
+                    $set: { seen: true }
+                }
+            );
+        }
+        
+        res.json({ messages });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Get conversation between two users
 router.get('/conversation/:userId', auth, async (req, res) => {
     try {
