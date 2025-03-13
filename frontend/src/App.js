@@ -5,8 +5,10 @@ import Login from './pages/login/login';
 import SignUp from './pages/signUp/signUp';
 import Profile from './pages/profile/profile'; 
 import FindFriends from './pages/findFriend/findFriends';
-import HomePage from './pages/homePage/homePage'; // Import HomePage component
+import HomePage from './pages/homePage/homePage';
+import MessageListPage from './pages/messageListPage/messageListPage';
 import Navbar from './pages/compomemts/Navbar';
+import ConversationDetail from './pages/conversation/ConversationDetail';
 import './App.css';
 
 // Loading component
@@ -15,7 +17,7 @@ const LoadingScreen = () => (
     <div className="loading-spinner"></div>
     <p>Loading...</p>
   </div>
-);
+);;
 
 // Protected Route component with Navbar integration
 const ProtectedRoute = ({ children }) => {
@@ -37,15 +39,15 @@ const ProtectedRoute = ({ children }) => {
     }
 
     // Return the children wrapped with Navbar for authenticated routes
-    return (
+    return ( (
         <>
             <Navbar />
             {/* Add top padding to account for fixed navbar height */}
             <div className="pt-14 md:pt-16">
                 {children}
             </div>
-        </>
-    );
+        </> 
+    ));
 };
 
 // Auth Route component (for login/register)
@@ -68,7 +70,7 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <HomePage />
-                        </ProtectedRoute>
+                        </ProtectedRoute> 
                     } 
                 />
                 
@@ -79,7 +81,7 @@ function App() {
                         <ProtectedRoute>
                             <Profile />
                         </ProtectedRoute>
-                    }
+                    }  
                 />
                 <Route
                     path="/profile/:username"
@@ -87,8 +89,8 @@ function App() {
                         <ProtectedRoute>
                             <Profile />
                         </ProtectedRoute>
-                    }
-                />
+                    }  
+                />/>
                 
                 {/* Find Friends route */}
                 <Route
@@ -97,10 +99,10 @@ function App() {
                         <ProtectedRoute>
                             <FindFriends />
                         </ProtectedRoute>
-                    }
-                />
+                    } 
+                />/>
                 
-                <Route 
+                <Route
                     path="/login" 
                     element={
                         <AuthRoute>
@@ -117,6 +119,24 @@ function App() {
                     } 
                 />
 
+                <Route
+                    path="/messages"
+                    element={
+                        <ProtectedRoute>
+                            <MessageListPage />
+                        </ProtectedRoute>
+                    }
+                />
+                {/* Individual conversation route */}
+                <Route
+                    path="/messages/:conversationId"
+                    element={
+                        <ProtectedRoute>
+                            <ConversationDetail />
+                        </ProtectedRoute>
+                    }
+                />
+                
                 <Route path="*" element={<Navigate to="/" />} />
             </Routes>
         </Router>
