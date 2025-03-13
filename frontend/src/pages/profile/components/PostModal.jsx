@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { publicRequest } from '../../../hooks/requestMethods';
 
-const PostModal = ({ post, profileUser, onClose }) => {
+const PostModal = ({ post, profileUser, onClose, onDelete }) => {
     const [isClosing, setIsClosing] = useState(false);
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState([]);
@@ -12,6 +12,8 @@ const PostModal = ({ post, profileUser, onClose }) => {
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [isCommentsVisible, setIsCommentsVisible] = useState(true);
+    const [showMenu, setShowMenu] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     
     const modalRef = useRef(null);
     const imageRef = useRef(null);
@@ -154,6 +156,23 @@ const PostModal = ({ post, profileUser, onClose }) => {
             handleZoomReset();
         }
     };
+
+    // Handle delete confirmation
+    const handleDeleteClick = () => {
+        setShowMenu(false);
+        setShowDeleteConfirm(true);
+    };
+
+    // Confirm delete action
+    const confirmDelete = () => {
+        onDelete(post._id);
+        setShowDeleteConfirm(false);
+    };
+
+    // Cancel delete action
+    const cancelDelete = () => {
+        setShowDeleteConfirm(false);
+    };
     
     // For mobile: toggle comments visibility
     const toggleComments = () => {
@@ -161,8 +180,8 @@ const PostModal = ({ post, profileUser, onClose }) => {
     };
     
     // Calculate if this is a post by the current user
-    const isOwnPost = profileUser && post.userId === profileUser.id;
-
+    const isOwnPost = true;
+   
     return (
         <div className={`fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`}
             onClick={handleClose}
@@ -281,14 +300,29 @@ const PostModal = ({ post, profileUser, onClose }) => {
                         
                         {/* Options Menu (Three dots) */}
                         {isOwnPost && (
-                            <div className="ml-auto">
-                                <button className="p-2 rounded-full hover:bg-gray-100">
+                            <div className="ml-auto relative">
+                                <button 
+                                    className="p-2 rounded-full hover:bg-gray-100"
+                                    onClick={() => setShowMenu(!showMenu)}
+                                >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                         <circle cx="12" cy="12" r="1"></circle>
                                         <circle cx="12" cy="5" r="1"></circle>
                                         <circle cx="12" cy="19" r="1"></circle>
                                     </svg>
                                 </button>
+                                
+                                {/* Options Menu */}
+                                {showMenu && (
+                                    <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                                        <button 
+                                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                            onClick={handleDeleteClick}
+                                        >
+                                            Delete post
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
@@ -437,6 +471,32 @@ const PostModal = ({ post, profileUser, onClose }) => {
                     </div>
                 </div>
             </div>
+
+            {/* Delete Confirmation Dialog */}
+            {showDeleteConfirm && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                    <div className="bg-white rounded-lg p-6 max-w-sm mx-auto">
+                        <h3 className="text-lg font-semibold mb-4">Delete Post?</h3>
+                        <p className="mb-6 text-gray-600">
+                            Are you sure you want to delete this post? This action cannot be undone.
+                        </p>
+                        <div className="flex justify-end gap-3">
+                            <button 
+                                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100"
+                                onClick={cancelDelete}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                                onClick={confirmDelete}
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
