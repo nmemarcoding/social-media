@@ -12,111 +12,50 @@ const MessageListPage = () => {
   const navigate = useNavigate();
   const currentUser = getUserInfo() || {};
 
-  // Fetch conversations when component mounts
   useEffect(() => {
     const fetchConversations = async () => {
       setLoading(true);
+      setError(null);
+
       try {
-        // In a real app, this would call your API endpoint
-        const response = await publicRequest().get('/conversations');
-        setConversations(response.data || []);
+        // Fetch from your actual endpoint
+        const response = await publicRequest().get('/messages/conversations');
+
+        // Transform the API response to match our existing UI structure
+        // Each conversation will have:
+        //  - an 'id' we can use for navigation (in this example, I'll use the partner's _id)
+        //  - a 'participants' array with just the partner
+        //  - a 'lastMessage' object with fields content, createdAt, sender, and read
+        const transformedData = (response.data || []).map((item) => {
+          return {
+            id: item.partner._id, // or any unique identifier you want to use
+            participants: [
+              {
+                _id: item.partner._id,
+                username: item.partner.username,
+                firstName: item.partner.firstName,
+                lastName: item.partner.lastName,
+                // If your API doesn't provide a profile picture, you can keep this blank or use a placeholder
+                profilePicture: '',
+              },
+            ],
+            lastMessage: {
+              content: item.lastMessage?.content || '',
+              createdAt: item.lastMessage?.createdAt || null,
+              // Depending on your usage, you can distinguish the sender name/ID for display logic
+              sender: item.lastMessage?.senderId || '',
+              // Convert the 'seen' field to match your existing 'read' usage
+              read: item.lastMessage?.seen ?? false,
+            },
+            // If needed, you can also keep track of the unreadCount
+            unreadCount: item.unreadCount,
+          };
+        });
+
+        setConversations(transformedData);
       } catch (err) {
         console.error("Failed to fetch conversations:", err);
         setError("Couldn't load your messages. Please try again.");
-        
-        // Fallback mock data for development/demo purposes
-        setConversations([
-          {
-            id: "conv1",
-            participants: [
-              {
-                _id: "user1",
-                username: "sarahsmith",
-                firstName: "Sarah",
-                lastName: "Smith",
-                profilePicture: "https://randomuser.me/api/portraits/women/12.jpg",
-              }
-            ],
-            lastMessage: {
-              content: "Hey! How's it going with the project?",
-              createdAt: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
-              sender: "user1",
-              read: false
-            }
-          },
-          {
-            id: "conv2",
-            participants: [
-              {
-                _id: "user2",
-                username: "alexjohnson",
-                firstName: "Alex",
-                lastName: "Johnson",
-                profilePicture: "https://randomuser.me/api/portraits/men/32.jpg",
-              }
-            ],
-            lastMessage: {
-              content: "I just sent you the files you requested.",
-              createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-              sender: "currentUser",
-              read: true
-            }
-          },
-          {
-            id: "conv3",
-            participants: [
-              {
-                _id: "user3",
-                username: "mikeross",
-                firstName: "Mike",
-                lastName: "Ross",
-                profilePicture: "https://randomuser.me/api/portraits/men/45.jpg",
-              }
-            ],
-            lastMessage: {
-              content: "Can we schedule a meeting for tomorrow?",
-              createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-              sender: "user3",
-              read: true
-            }
-          },
-          {
-            id: "conv4",
-            participants: [
-              {
-                _id: "user4",
-                username: "jennawilson",
-                firstName: "Jenna",
-                lastName: "Wilson",
-                profilePicture: "https://randomuser.me/api/portraits/women/63.jpg",
-              }
-            ],
-            lastMessage: {
-              content: "Thanks for your help yesterday! I really appreciate it.",
-              createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
-              sender: "user4",
-              read: false
-            }
-          },
-          {
-            id: "conv5",
-            participants: [
-              {
-                _id: "user5",
-                username: "danielbrown",
-                firstName: "Daniel",
-                lastName: "Brown",
-                profilePicture: "https://randomuser.me/api/portraits/men/57.jpg",
-              }
-            ],
-            lastMessage: {
-              content: "Let me know when you're free to talk about the new design.",
-              createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3), // 3 days ago
-              sender: "user5",
-              read: true
-            }
-          }
-        ]);
       } finally {
         setLoading(false);
       }
@@ -126,12 +65,12 @@ const MessageListPage = () => {
   }, []);
 
   // Filter conversations based on search query
-  const filteredConversations = conversations.filter(conversation => {
-    const participant = conversation.participants[0]; // Assuming the other user is the first participant
+  const filteredConversations = conversations.filter((conversation) => {
+    const participant = conversation.participants[0];
     const name = `${participant.firstName} ${participant.lastName}`.toLowerCase();
     const username = participant.username.toLowerCase();
     const searchLower = searchQuery.toLowerCase();
-    
+
     return name.includes(searchLower) || username.includes(searchLower);
   });
 
@@ -164,7 +103,9 @@ const MessageListPage = () => {
                 viewBox="0 0 24 24" 
                 stroke="currentColor"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
+                />
               </svg>
             </div>
           </div>
@@ -182,8 +123,16 @@ const MessageListPage = () => {
             // Error state
             <div className="p-6 text-center">
               <div className="text-red-500 mb-2">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-12 w-12 mx-auto"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                  />
                 </svg>
               </div>
               <p className="text-gray-700 font-medium">{error}</p>
@@ -207,7 +156,9 @@ const MessageListPage = () => {
           ) : searchQuery ? (
             // No results for search
             <div className="p-8 text-center">
-              <p className="text-gray-500">No conversations found for "{searchQuery}"</p>
+              <p className="text-gray-500">
+                No conversations found for "{searchQuery}"
+              </p>
             </div>
           ) : (
             // Empty state - no messages
