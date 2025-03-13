@@ -64,8 +64,8 @@ router.get('/conversations', auth, async (req, res) => {
             ]
         })
         .sort({ createdAt: -1 })
-        .populate('sender', 'username firstName lastName')
-        .populate('receiver', 'username firstName lastName');
+        .populate('sender', 'username firstName lastName, profilePicture')
+        .populate('receiver', 'username firstName lastName, profilePicture');
 
         // Group messages by conversation partner
         const conversations = messages.reduce((acc, message) => {
