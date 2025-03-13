@@ -40,11 +40,14 @@ router.get('/history/:userId', auth, async (req, res) => {
         const { userId } = req.params;
         const { markSeen = false } = req.query;
         
-        // Verify if user exists
-        const user = await User.findById(userId);
-        if (!user) {
+        // Verify if user exists and get their info
+        const otherUser = await User.findById(userId).select('username firstName lastName profilePicture');
+        if (!otherUser) {
             return res.status(404).json({ error: "User not found" });
         }
+        
+        // Get current user info
+        const currentUser = await User.findById(req.user.id).select('username firstName lastName profilePicture');
         
         // Find all messages between the two users
         const messages = await Message.find({
@@ -52,10 +55,7 @@ router.get('/history/:userId', auth, async (req, res) => {
                 { senderId: req.user.id, receiverId: userId },
                 { senderId: userId, receiverId: req.user.id }
             ]
-        })
-        .sort({ createdAt: -1 }) // Newest first
-        .populate('sender', 'username firstName lastName profilePicture')
-        .populate('receiver', 'username firstName lastName profilePicture');
+        }).sort({ createdAt: -1 }); // Newest first
         
         // Mark messages as seen if requested and if they are sent to the current user
         if (markSeen === 'true' || markSeen === true) {
@@ -71,7 +71,14 @@ router.get('/history/:userId', auth, async (req, res) => {
             );
         }
         
-        res.json({ messages });
+        // Add user info to response
+        res.json({ 
+            users: {
+                [req.user.id]: currentUser,
+                [userId]: otherUser
+            },
+            messages: messages
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
