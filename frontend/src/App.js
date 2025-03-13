@@ -90,8 +90,9 @@ function App() {
                             <Profile />
                         </ProtectedRoute>
                     }  
-                />/>
+                />
                 
+                {/* Other routes */}
                 {/* Find Friends route */}
                 <Route
                     path="/find-friends"
@@ -100,7 +101,7 @@ function App() {
                             <FindFriends />
                         </ProtectedRoute>
                     } 
-                />/>
+                />
                 
                 <Route
                     path="/login" 
