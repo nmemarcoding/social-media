@@ -66,6 +66,31 @@ router.put('/accept/:userId', auth, async (req, res) => {
     }
 });
 
+// Remove friend (unfriend)
+router.delete('/friend/:userId', auth, async (req, res) => {
+    try {
+        const relationship = await Relationship.findOneAndDelete({
+            $or: [
+                { requester: req.user.id, recipient: req.params.userId },
+                { requester: req.params.userId, recipient: req.user.id }
+            ],
+            status: 'accepted'
+        });
+
+        if (!relationship) {
+            return res.status(404).json({ error: "Friendship not found" });
+        }
+
+        // Update friends count for both users (decrement)
+        await User.findByIdAndUpdate(req.user.id, { $inc: { friendsCount: -1 } });
+        await User.findByIdAndUpdate(req.params.userId, { $inc: { friendsCount: -1 } });
+
+        res.json({ message: "Friend removed successfully" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Reject/Cancel friend request
 router.delete('/request/:userId', auth, async (req, res) => {
     try {
@@ -126,6 +151,71 @@ router.get('/friends', auth, async (req, res) => {
         }).populate('requester recipient', 'username firstName lastName profilePicture');
 
         res.json(relationships);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Get all users with relationship status
+router.get('/users', auth, async (req, res) => {
+    try {
+        // Get query parameter for search
+        const search = req.query.search || '';
+        
+        // Build search query
+        const searchQuery = search ? {
+            $or: [
+                { username: { $regex: search, $options: 'i' } },
+                { firstName: { $regex: search, $options: 'i' } },
+                { lastName: { $regex: search, $options: 'i' } }
+            ]
+        } : {};
+        
+        // Exclude current user
+        const excludeUsers = { _id: { $ne: req.user.id } };
+        
+        // Combine search and exclude filters
+        const query = { ...searchQuery, ...excludeUsers };
+        
+        // Get all users
+        const users = await User.find(query)
+            .select('username firstName lastName profilePicture bio friendsCount');
+        
+        // Get all relationships for current user
+        const relationships = await Relationship.find({
+            $or: [
+                { requester: req.user.id },
+                { recipient: req.user.id }
+            ]
+        });
+        
+        // Create a map of userId to relationship
+        const relationshipMap = {};
+        relationships.forEach(rel => {
+            const otherUserId = rel.requester.toString() === req.user.id.toString() 
+                ? rel.recipient.toString() 
+                : rel.requester.toString();
+            
+            let relationshipStatus = rel.status;
+            
+            // Add direction for pending relationships
+            if (relationshipStatus === 'pending') {
+                relationshipStatus = rel.requester.toString() === req.user.id.toString()
+                    ? 'pending_sent'
+                    : 'pending_received';
+            }
+            
+            relationshipMap[otherUserId] = relationshipStatus;
+        });
+        
+        // Add relationship status to each user
+        const usersWithRelationship = users.map(user => {
+            const userObj = user.toObject();
+            userObj.relationshipStatus = relationshipMap[user._id.toString()] || null;
+            return userObj;
+        });
+        
+        res.json({ users: usersWithRelationship });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
