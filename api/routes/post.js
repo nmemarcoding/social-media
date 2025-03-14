@@ -74,27 +74,6 @@ router.delete('/:id', auth, async (req, res) => {
     }
 });
 
-// Get a post
-router.get('/:id', auth, async (req, res) => {
-    try {
-        const post = await Post.findById(req.params.id);
-        if (!post) {
-            return res.status(404).json({ error: "Post not found" });
-        }
-
-        // Check if the post belongs to the authenticated user
-        if (post.userId.toString() !== req.user.id.toString()) {
-            return res.status(403).json({ error: "You can only view your own posts" });
-        }
-
-        res.json(post);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-
-
 // Get timeline posts for authenticated user and friends
 router.get('/timeline/all', auth, async (req, res) => {
     try {
@@ -140,6 +119,68 @@ router.get('/user/posts', auth, async (req, res) => {
     }
 });
 
+// Get user posts - with optional username parameter
+router.get('/user-posts', auth, async (req, res) => {
+    try {
+        const { username } = req.query;
+        let userId = req.user.id;
+        
+        // If username is provided, find user by username
+        if (username) {
+            const user = await User.findOne({ username });
+            if (!user) {
+                return res.status(404).json({ error: "User not found" });
+            }
+            userId = user._id;
+            
+            // Check if the profile is private and not the current user
+            if (user.isPrivate && userId.toString() !== req.user.id) {
+                // Check if users are friends
+                const relationship = await Relationship.findOne({
+                    $or: [
+                        { requester: req.user.id, recipient: userId, status: 'accepted' },
+                        { requester: userId, recipient: req.user.id, status: 'accepted' }
+                    ]
+                });
+                
+                // If not friends and profile is private, return privacy message
+                if (!relationship) {
+                    return res.status(403).json({ 
+                        error: "This user's posts are private",
+                        isPrivate: true
+                    });
+                }
+            }
+        }
+        
+        // Get posts for the specified or authenticated user
+        const posts = await Post.find({ userId })
+            .sort({ createdAt: -1 })
+            .populate('userId', 'username profilePicture firstName lastName');
+        
+        res.json(posts);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
+// Get a post by ID - MOVE THIS ROUTE TO THE END
+router.get('/:id', auth, async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) {
+            return res.status(404).json({ error: "Post not found" });
+        }
+
+        // Check if the post belongs to the authenticated user
+        if (post.userId.toString() !== req.user.id.toString()) {
+            return res.status(403).json({ error: "You can only view your own posts" });
+        }
+
+        res.json(post);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 module.exports = router;
