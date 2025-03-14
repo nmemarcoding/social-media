@@ -95,7 +95,7 @@ router.get('/:id', auth, async (req, res) => {
 
 
 
-// Get timeline posts
+// Get timeline posts for authenticated user and friends
 router.get('/timeline/all', auth, async (req, res) => {
     try {
         // Find all accepted relationships involving the current user
