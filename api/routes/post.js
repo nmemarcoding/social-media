@@ -140,44 +140,6 @@ router.get('/user/posts', auth, async (req, res) => {
     }
 });
 
-// NEW ROUTE: Get comments for a post
-router.get('/post/:postId', auth, async (req, res) => {
-    try {
-        const comments = await Comment.find({ postId: req.params.postId })
-            .sort({ createdAt: -1 })
-            .populate('userId', 'username');
-        
-        res.json(comments);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
 
-// NEW ROUTE: Create comment for a post
-router.post('/:postId', auth, async (req, res) => {
-    try {
-        // Check if post exists
-        const post = await Post.findById(req.params.postId);
-        if (!post) {
-            return res.status(404).json({ error: "Post not found" });
-        }
-
-        // Create new comment
-        const newComment = new Comment({
-            postId: req.params.postId,
-            userId: req.user.id,
-            content: req.body.content
-        });
-
-        const savedComment = await newComment.save();
-        
-        // Populate user info
-        await savedComment.populate('userId', 'username');
-        
-        res.status(201).json(savedComment);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
 
 module.exports = router;
