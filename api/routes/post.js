@@ -111,7 +111,7 @@ router.get('/user/posts', auth, async (req, res) => {
     try {
         const userPosts = await Post.find({ userId: req.user.id })
             .sort({ createdAt: -1 })
-            .populate('userId', 'username profilePicture');
+            .populate('userId', 'username profilePicture firstName lastName bio friendsCount'); 
         
         res.json(userPosts);
     } catch (err) {
@@ -124,6 +124,7 @@ router.get('/user-posts', auth, async (req, res) => {
     try {
         const { username } = req.query;
         let userId = req.user.id;
+        let isOwnProfile = true;
         
         // If username is provided, find user by username
         if (username) {
@@ -132,9 +133,10 @@ router.get('/user-posts', auth, async (req, res) => {
                 return res.status(404).json({ error: "User not found" });
             }
             userId = user._id;
+            isOwnProfile = userId.toString() === req.user.id;
             
             // Check if the profile is private and not the current user
-            if (user.isPrivate && userId.toString() !== req.user.id) {
+            if (user.isPrivate && !isOwnProfile) {
                 // Check if users are friends
                 const relationship = await Relationship.findOne({
                     $or: [
@@ -147,7 +149,8 @@ router.get('/user-posts', auth, async (req, res) => {
                 if (!relationship) {
                     return res.status(403).json({ 
                         error: "This user's posts are private",
-                        isPrivate: true
+                        isPrivate: true,
+                        isOwnProfile: false
                     });
                 }
             }
@@ -156,9 +159,13 @@ router.get('/user-posts', auth, async (req, res) => {
         // Get posts for the specified or authenticated user
         const posts = await Post.find({ userId })
             .sort({ createdAt: -1 })
-            .populate('userId', 'username profilePicture firstName lastName');
+            .populate('userId', 'username profilePicture firstName lastName bio friendsCount');
         
-        res.json(posts);
+        // Include isOwnProfile flag in response
+        res.json({
+            posts,
+            isOwnProfile
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

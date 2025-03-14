@@ -106,6 +106,26 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// Get basic user profile by username (minimal info even if private)
+router.get('/basic-profile/:username', auth, async (req, res) => {
+    try {
+        const user = await User.findOne({ username: req.params.username });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Return limited information regardless of privacy
+        res.json({
+            id: user._id,
+            username: user.username,
+            profilePicture: user.profilePicture,
+            isPrivate: user.isPrivate
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Get user by username
 router.get('/profile/:username', auth, async (req, res) => {
     try {
