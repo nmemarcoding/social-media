@@ -47,6 +47,7 @@ export default function Profile() {
                 const timelineRes = await publicRequest().get(url);
                 const responseData = timelineRes.data;
                 
+                
                 // Extract posts array and isOwnProfile from response
                 const postsData = responseData.posts || [];
                 // Update isOwnProfile state from API response
@@ -182,7 +183,7 @@ export default function Profile() {
     
     const handleMessage = () => {
         console.log('Message action triggered');
-        navigate('/messages/1'); // Using hardcoded user ID
+        navigate(`/messages/${profileData._id}`); // Using hardcoded user ID
     };
 
     // Use profileData if available, otherwise fall back to profileUser

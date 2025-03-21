@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getUserInfo } from '../../hooks/requestMethods'; // Removed publicRequest since it's not used
+import { getUserInfo, publicRequest } from '../../hooks/requestMethods';
 import ConversationHeader from './components/ConversationHeader';
 import MessageBubble from './components/MessageBubble';
 import MessageInput from './components/MessageInput';
@@ -8,121 +8,55 @@ import MessageInput from './components/MessageInput';
 const ConversationDetail = () => {
   const { conversationId } = useParams();
   const navigate = useNavigate();
-  // Removed conversation state since it's not used
   const [messages, setMessages] = useState([]);
   const [otherUser, setOtherUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const messageEndRef = useRef(null);
   const currentUser = getUserInfo() || {};
-
+  const { userId } = useParams();
+  
   // Fetch conversation and messages
   useEffect(() => {
     const fetchConversationData = async () => {
       try {
         setLoading(true);
-        // In a real app, these would be API calls
-        // For now, let's simulate the data
         
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 800));
+        // Get conversation history with the userId
+        const response = await publicRequest().get(`/messages/history/${userId}`);
+        const data = response.data;
+     
         
-        // Mock other user data
-        const mockOtherUser = {
-          _id: '2',
-          username: 'janedoe',
-          firstName: 'Jane',
-          lastName: 'Doe',
-          profilePicture: 'https://randomuser.me/api/portraits/women/65.jpg'
-        };
+        // Get current user ID from the stored user info
+        const currentUserId = currentUser.id;
         
-        // Mock conversation data - now used for reference only
-        // const mockConversation = {
-        //   _id: conversationId,
-        //   participants: [currentUser.id, mockOtherUser._id],
-        //   createdAt: new Date().toISOString(),
-        //   updatedAt: new Date().toISOString()
-        // };
+        // Find the other user in the conversation based on the userId param
+        const foundOtherUser = data.users[userId];
         
-        // Mock messages
-        const mockMessages = [
-          {
-            _id: '1',
-            conversationId,
-            sender: mockOtherUser._id,
-            content: 'Hey there! How are you doing?',
-            createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-            read: true
-          },
-          {
-            _id: '2',
-            conversationId,
-            sender: currentUser.id,
-            content: 'I\'m good, thanks for asking! Just working on a new project.',
-            createdAt: new Date(Date.now() - 85000000).toISOString(),
-            read: true
-          },
-          {
-            _id: '3',
-            conversationId,
-            sender: mockOtherUser._id,
-            content: 'Oh nice! What kind of project are you working on?',
-            createdAt: new Date(Date.now() - 84000000).toISOString(),
-            read: true
-          },
-          {
-            _id: '4',
-            conversationId,
-            sender: currentUser.id,
-            content: 'It\'s a social media app similar to Instagram, but with some unique features.',
-            createdAt: new Date(Date.now() - 80000000).toISOString(),
-            read: true
-          },
-          {
-            _id: '5',
-            conversationId,
-            sender: mockOtherUser._id,
-            content: 'That sounds really interesting! I\'d love to check it out when it\'s ready.',
-            createdAt: new Date(Date.now() - 79000000).toISOString(),
-            read: true
-          },
-          {
-            _id: '6',
-            conversationId,
-            sender: currentUser.id,
-            content: 'Sure! I\'ll share the link once it\'s launched. Are you still working at that tech company?',
-            createdAt: new Date(Date.now() - 75000000).toISOString(),
-            read: true
-          },
-          {
-            _id: '7',
-            conversationId,
-            sender: mockOtherUser._id,
-            content: 'Yes, I am. It\'s been pretty hectic lately with all the deadlines, but I enjoy the work.',
-            createdAt: new Date(Date.now() - 70000000).toISOString(),
-            read: true
-          },
-          {
-            _id: '8',
-            conversationId,
-            sender: currentUser.id,
-            content: 'I know that feeling! Deadlines can be stressful, but it\'s great that you enjoy what you do.',
-            createdAt: new Date(Date.now() - 60000000).toISOString(),
-            read: true
-          },
-          {
-            _id: '9',
-            conversationId,
-            sender: mockOtherUser._id,
-            content: 'Absolutely! Hey, we should catch up sometime soon in person. It\'s been a while!',
-            createdAt: new Date(Date.now() - 30000000).toISOString(),
-            read: false
-          }
-        ];
+        if (!foundOtherUser) {
+          throw new Error("User not found");
+        }
         
-        setOtherUser(mockOtherUser);
-        // Removed setConversation since we're not using it
-        setMessages(mockMessages);
+        // Filter and format messages between current user and other user
+        const conversationMessages = data.messages.filter(msg => 
+          (msg.senderId === currentUserId && msg.receiverId === userId) || 
+          (msg.senderId === userId && msg.receiverId === currentUserId)
+        );
+        
+        // Sort messages by date and format them
+        const formattedMessages = conversationMessages
+          .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+          .map(msg => ({
+            _id: msg._id,
+            conversationId: userId, // Use userId as conversationId
+            sender: msg.senderId,
+            content: msg.content,
+            createdAt: msg.createdAt,
+            read: msg.seen
+          }));
+        
+        setOtherUser(foundOtherUser);
+        setMessages(formattedMessages);
       } catch (err) {
         console.error('Error fetching conversation:', err);
         setError('Failed to load conversation. Please try again.');
@@ -131,8 +65,10 @@ const ConversationDetail = () => {
       }
     };
     
-    fetchConversationData();
-  }, [conversationId, currentUser.id]);
+    if (userId) {
+      fetchConversationData();
+    }
+  }, [userId, currentUser.id]);
 
   // Auto scroll to bottom when messages change
   useEffect(() => {
@@ -141,13 +77,13 @@ const ConversationDetail = () => {
     }
   }, [messages]);
 
-  const handleSendMessage = (content) => {
+  const handleSendMessage = async (content) => {
     if (!content.trim()) return;
     
-    // In a real app, this would be an API call to send the message
-    const newMessage = {
-      _id: `new-${Date.now()}`,
-      conversationId,
+    // Create a temporary message to show in the UI immediately
+    const tempMessage = {
+      _id: `temp-${Date.now()}`,
+      conversationId: userId,
       sender: currentUser.id,
       content,
       createdAt: new Date().toISOString(),
@@ -155,19 +91,43 @@ const ConversationDetail = () => {
       pending: true
     };
     
-    // Add message to the list
-    setMessages(prevMessages => [...prevMessages, newMessage]);
+    // Add the temporary message to the UI
+    setMessages(prevMessages => [...prevMessages, tempMessage]);
     
-    // Simulate API call success after delay
-    setTimeout(() => {
+    try {
+      // Send the message to the API
+      const response = await publicRequest().post(`messages/${userId}`, {
+        receiverId: userId,
+        content: content.trim()
+      });
+      
+      // Replace the temporary message with the real one from the API
       setMessages(prevMessages => 
         prevMessages.map(msg => 
-          msg._id === newMessage._id 
-            ? { ...msg, pending: false } 
+          msg._id === tempMessage._id 
+            ? {
+                _id: response.data._id || tempMessage._id,
+                conversationId: userId,
+                sender: currentUser.id,
+                content,
+                createdAt: response.data.createdAt || tempMessage.createdAt,
+                read: false,
+                pending: false
+              } 
             : msg
         )
       );
-    }, 1000);
+    } catch (err) {
+      console.error('Error sending message:', err);
+      // Mark the message as failed
+      setMessages(prevMessages => 
+        prevMessages.map(msg => 
+          msg._id === tempMessage._id 
+            ? { ...msg, pending: false, failed: true } 
+            : msg
+        )
+      );
+    }
   };
 
   const handleBack = () => {
@@ -204,8 +164,7 @@ const ConversationDetail = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      {/* Header */}
+    <div className="flex flex-col h-screen bg-gray-50 pb-0 sm:pb-0 md:pb-0 pb-16">
       {otherUser && (
         <ConversationHeader 
           user={otherUser} 
@@ -213,7 +172,6 @@ const ConversationDetail = () => {
         />
       )}
       
-      {/* Messages Container */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.map((message, index) => (
           <MessageBubble 
@@ -227,7 +185,6 @@ const ConversationDetail = () => {
         <div ref={messageEndRef} />
       </div>
       
-      {/* Message Input Area */}
       <MessageInput onSendMessage={handleSendMessage} />
     </div>
   );

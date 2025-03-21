@@ -57,6 +57,11 @@ router.get('/history/:userId', auth, async (req, res) => {
             ]
         }).sort({ createdAt: -1 }); // Newest first
         
+        // Check if there are any messages between the users
+        if (messages.length === 0) {
+            return res.status(404).json({ error: "Conversation not found" });
+        }
+        
         // Mark messages as seen if requested and if they are sent to the current user
         if (markSeen === 'true' || markSeen === true) {
             await Message.updateMany(

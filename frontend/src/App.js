@@ -130,7 +130,7 @@ function App() {
                 />
                 {/* Individual conversation route */}
                 <Route
-                    path="/messages/:conversationId"
+                    path="/messages/:userId"
                     element={
                         <ProtectedRoute>
                             <ConversationDetail />

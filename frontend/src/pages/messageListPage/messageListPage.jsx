@@ -21,6 +21,7 @@ const MessageListPage = () => {
       try {
         // Fetch data from the endpoint
         const response = await publicRequest().get('/messages/conversations');
+        console.log('Conversations Data:', response.data);
         
         // Transform the API data for the UI
         const transformedData = (response.data || []).map((item) => {
@@ -70,6 +71,7 @@ const MessageListPage = () => {
     const fullName = `${participant.firstName} ${participant.lastName}`.toLowerCase();
     const username = participant.username.toLowerCase();
     const searchLower = searchQuery.toLowerCase();
+  
 
     return fullName.includes(searchLower) || username.includes(searchLower);
   });
